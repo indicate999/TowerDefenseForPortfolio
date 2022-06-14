@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class Track : MonoBehaviour
 {
+    public float health;
+
     public float speed;
     public float rotationSpeed;
     public float rotateStartDistance;
+    public float delay;
 
     private int i = 1;
 

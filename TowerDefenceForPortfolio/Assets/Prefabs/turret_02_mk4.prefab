@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3358051012026219383}
   - component: {fileID: 3358051012026219382}
   - component: {fileID: 8084391019106130241}
+  - component: {fileID: 3733610235294060075}
   m_Layer: 0
   m_Name: turret_02_mk4
   m_TagString: Untagged
@@ -94,7 +95,7 @@ Animator:
   m_GameObject: {fileID: 3358051012026219381}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 39a0c5f77da35784eb481669ee3c75ea, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2e8e4aee09f3d0744a089cc0615b390c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -124,3 +125,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &3733610235294060075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3358051012026219381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0c973a3867f87a4e9eac74e55477e83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 30
+  attackSpeed: 2
+  attackRadius: 4

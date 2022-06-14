@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1538655596772935722}
   - component: {fileID: 1538655596772935723}
   - component: {fileID: 3182967882996554747}
+  - component: {fileID: 8575389251799435688}
   m_Layer: 0
   m_Name: turret_02_mk2
   m_TagString: Untagged
@@ -124,3 +125,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &8575389251799435688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538655596772935720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0c973a3867f87a4e9eac74e55477e83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 27
+  attackSpeed: 3
+  attackRadius: 3

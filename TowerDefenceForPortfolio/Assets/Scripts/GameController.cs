@@ -5,8 +5,12 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     public Transform[] trackPoints;
-    public GameObject[] tracks;
+    [SerializeField]
+    private GameObject[] tracks;
     //public float rotateStartDistance;
+
+    [HideInInspector]
+    public List<GameObject> activeTracks = new List<GameObject>();
 
     [HideInInspector]
     public static GameController instance;
@@ -19,9 +23,7 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        
-
-        CreateHalfTrack();
+        StartCoroutine(CreateTracks(0, 6));
     }
 
     // Update is called once per frame
@@ -30,8 +32,19 @@ public class GameController : MonoBehaviour
         
     }
 
-    private void CreateHalfTrack()
+    IEnumerator CreateTracks(int trackType, int trackCount)
     {
-        Instantiate(tracks[0], trackPoints[0].position, Quaternion.identity);
+        float delay = tracks[trackType].GetComponent<Track>().delay;
+
+        for (int i = 0; i < trackCount; i++)
+        {
+            activeTracks.Add(Instantiate(tracks[trackType], trackPoints[0].position, Quaternion.identity));
+            yield return new WaitForSeconds(delay);
+        }
     }
+
+    //private void CreateHalfTrack()
+    //{
+    //    Instantiate(tracks[0], trackPoints[0].position, Quaternion.identity);
+    //}
 }

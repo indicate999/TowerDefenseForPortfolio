@@ -3,51 +3,80 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System;
 
 public class TowerController : MonoBehaviour
 {
-    public GameObject[] turrel1;
-    public GameObject[] turrel2;
-    public Collider2D[] towerColliders;
+    [Serializable]
+    public class TurrelArray
+    {
+        public GameObject[] turretSeriesIndexArray;
+    }
 
-    public GameObject Canvas;
-    public GameObject BuyPanel;
-    public GameObject ChangePanel;
+    [SerializeField]
+    private TurrelArray[] turretExamplesArray;
 
-    public float panelPositionDistance;
+    [SerializeField]
+    private Collider2D[] towerColliders;
 
-    private GameObject[] towers;
-    private GameObject[,] panels;
-    private int[,] turrelTypes;
+    [SerializeField]
+    private GameObject Canvas;
+    [SerializeField]
+    private GameObject BuyPanelPrefab;
+    [SerializeField]
+    private GameObject ChangePanelPrefab;
+    [SerializeField]
+    private float panelPositionDistance;
+
+    //[Serializable]
+    private class Panels
+    {
+        public GameObject BuyPanel;
+        public GameObject ChangePanel;
+    }
+
+    private Panels[] panels;
+
+    private GameObject[] turrets;
+
+    //[Serializable]
+    private class TurrelTypes
+    {
+        public int turretExample;
+        public int turretSeriesIndex;
+    }
+
+    private TurrelTypes[] turretTypes;
 
     private int currentTowerSide;
 
     // Start is called before the first frame update
     private void Awake()
     {
-        towers = new GameObject[towerColliders.Length];
-        panels = new GameObject[towerColliders.Length, 2];
-        turrelTypes = new int[2, towerColliders.Length];
-
-        for(int i = 0; i < towerColliders.Length; i++)
-        {
-            var screenPosition = Camera.main.WorldToScreenPoint(towerColliders[i].transform.position);
-            
-            panels[i, 0] = Instantiate(BuyPanel, Canvas.transform, false);
-            var rectTransform = panels[i, 0].GetComponent<RectTransform>();
-            rectTransform.position = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance);
-            panels[i, 0].SetActive(false);
-
-            panels[i, 1] = Instantiate(ChangePanel, Canvas.transform, false);
-            var rectTransform2 = panels[i, 1].GetComponent<RectTransform>();
-            rectTransform2.position = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance);//Camera.main.WorldToScreenPoint(new Vector3(towerColliders[i].transform.position.x, towerColliders[i].transform.position.y, 0));
-            panels[i, 1].SetActive(false);
-        }
+        turrets = new GameObject[towerColliders.Length];
+        panels = new Panels[towerColliders.Length];
+        turretTypes = new TurrelTypes[towerColliders.Length];
     }
 
     void Start()
     {
-        
+        for (int i = 0; i < towerColliders.Length; i++)
+        {
+            var screenPosition = Camera.main.WorldToScreenPoint(towerColliders[i].transform.position);
+            //Debug.Log(BuyPanelPrefab.name);
+            Panels panel = new Panels();
+            panel.BuyPanel = Instantiate(BuyPanelPrefab, Canvas.transform, false);
+            var rectTransform = panel.BuyPanel.GetComponent<RectTransform>();
+            rectTransform.position = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance, 0);
+            panel.BuyPanel.SetActive(false);
+
+            panel.ChangePanel = Instantiate(ChangePanelPrefab, Canvas.transform, false);
+            var rectTransform2 = panel.ChangePanel.GetComponent<RectTransform>();
+            rectTransform2.position = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance, 0);//Camera.main.WorldToScreenPoint(new Vector3(towerColliders[i].transform.position.x, towerColliders[i].transform.position.y, 0));
+            panel.ChangePanel.SetActive(false);
+
+            panels[i] = panel;
+        }
     }
 
     // Update is called once per frame
@@ -55,6 +84,19 @@ public class TowerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                for (int i = 0; i < towerColliders.Length; i++)
+                {
+
+                    if (panels[i].BuyPanel.activeSelf)
+                        panels[i].BuyPanel.SetActive(false);
+                    if (panels[i].ChangePanel.activeSelf)
+                        panels[i].ChangePanel.SetActive(false);
+                }
+            }
+
+
             Vector2 mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(mousePoint, Vector2.zero);
             if (hit.collider != null)
@@ -65,19 +107,19 @@ public class TowerController : MonoBehaviour
                     {
                         if (towerColliders[i] == hit.collider)
                         {
-                            if (towers[i] == null)
+                            if (turrets[i] == null)
                             {
-                                if (!panels[i, 0].activeSelf)
-                                    panels[i, 0].SetActive(true);
-                                else if (panels[i, 0].activeSelf)
-                                    panels[i, 0].SetActive(false);
+                                if (!panels[i].BuyPanel.activeSelf)
+                                    panels[i].BuyPanel.SetActive(true);
+                                else if (panels[i].BuyPanel.activeSelf)
+                                    panels[i].BuyPanel.SetActive(false);
                             }
-                            else if (towers[i] != null)
+                            else if (turrets[i] != null)
                             {
-                                if (!panels[i, 1].activeSelf)
-                                    panels[i, 1].SetActive(true);
-                                else if (panels[i, 1].activeSelf)
-                                    panels[i, 1].SetActive(false);
+                                if (!panels[i].ChangePanel.activeSelf)
+                                    panels[i].ChangePanel.SetActive(true);
+                                else if (panels[i].ChangePanel.activeSelf)
+                                    panels[i].ChangePanel.SetActive(false);
                             }
 
                             currentTowerSide = i;
@@ -87,10 +129,11 @@ public class TowerController : MonoBehaviour
                     }
 
                     //if (!EventSystem.current.IsPointerOverGameObject())
-                        //Instantiate(turrel1[0], new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y, 0), Quaternion.Euler(0, 0, 180));
+                    //Instantiate(turrel1[0], new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y, 0), Quaternion.Euler(0, 0, 180));
                 }
             }
         }
+
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -106,30 +149,45 @@ public class TowerController : MonoBehaviour
     {
         var currentTowerSidePosition = towerColliders[currentTowerSide].transform.position;
 
-        if (trackNum == 0)
-        {
-            towers[currentTowerSide] = Instantiate(turrel1[0], new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
-        }
-        else if (trackNum == 1)
-        {
-            towers[currentTowerSide] = Instantiate(turrel2[0], new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
-        }
+        turrets[currentTowerSide] = Instantiate(turretExamplesArray[trackNum].turretSeriesIndexArray[0], new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
+        panels[currentTowerSide].BuyPanel.SetActive(false);
 
-        turrelTypes[trackNum ,currentTowerSide] = 0;
-        panels[currentTowerSide, 0].SetActive(false);
+        TurrelTypes turretType = new TurrelTypes();
+        turretType.turretExample = trackNum;
+        turretType.turretSeriesIndex = 0;
+
+        turretTypes[currentTowerSide] = turretType;
     }
 
     public void Upgrade()
     {
-        if (towers[currentTowerSide] == turrel1[0])
-            Debug.Log("ffff");
+        int turretExampleLength = turretExamplesArray[turretTypes[currentTowerSide].turretExample].turretSeriesIndexArray.Length - 1;
+
+        if (turretTypes[currentTowerSide].turretSeriesIndex < turretExampleLength)
+        {
+            turretTypes[currentTowerSide].turretSeriesIndex++;
+
+            Destroy(turrets[currentTowerSide]);
+            var currentTowerSidePosition = towerColliders[currentTowerSide].transform.position;
+            turrets[currentTowerSide] = Instantiate(turretExamplesArray[turretTypes[currentTowerSide].turretExample].turretSeriesIndexArray[turretTypes[currentTowerSide].turretSeriesIndex], new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
+            panels[currentTowerSide].ChangePanel.SetActive(false);
+
+            if (turretTypes[currentTowerSide].turretSeriesIndex == turretExampleLength)
+                panels[currentTowerSide].ChangePanel.transform.GetChild(0).gameObject.SetActive(false);
+        }
     }
 
     public void Sale()
     {
-        Destroy(towers[currentTowerSide]);
-        towers[currentTowerSide] = null;
+        Destroy(turrets[currentTowerSide]);
+        turrets[currentTowerSide] = null;
 
-        panels[currentTowerSide, 1].SetActive(false);
+        panels[currentTowerSide].ChangePanel.transform.GetChild(0).gameObject.SetActive(true);
+
+        panels[currentTowerSide].ChangePanel.SetActive(false);
+
+        Array.Clear(turretTypes, currentTowerSide, 1);
+        //turretTypes[currentTowerSide].turretExample = -1;
+        //turretTypes[currentTowerSide].turretSeriesIndex = -1;
     }
 }
