@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class Track : MonoBehaviour
 {
-    public float health;
+    [SerializeField] private float maxHealthAmount;
+    private float healthAmount;
 
-    public float speed;
-    public float rotationSpeed;
-    public float rotateStartDistance;
+    [SerializeField] private float speed;
+    [SerializeField] private float rotationSpeed;
+    [SerializeField] private float rotateStartDistance;
+
     public float delay;
 
-    private int i = 1;
+    public float reward;
+
+    private int nextRoutePoint = 1;
 
     private enum RotateDirection
     {
@@ -25,124 +29,182 @@ public class Track : MonoBehaviour
     private RotateDirection rotatedirection;
 
     private Quaternion rotationTarget;
+    private float rotationZ;
+
+    private Main main;
+    //private SceneController sceneController;
+    private SoundEffector soundEffector;
+
+    //[HideInInspector]
+    //public bool isUnderAttack = false;
+
+    private void Awake()
+    {
+        main = GameObject.FindGameObjectWithTag("Main").GetComponent<Main>();
+        //sceneController = GameObject.FindGameObjectWithTag("SceneController").GetComponent<SceneController>();
+        soundEffector = GameObject.FindGameObjectWithTag("SoundEffector").GetComponent<SoundEffector>();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        healthAmount = maxHealthAmount;
         //transform.position = GameController.instance.trackPoints[0].position;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log("sss");
+        transform.position = Vector3.MoveTowards(transform.position, TrackController.instance.trackRoutePoints[nextRoutePoint].position, speed * Time.deltaTime);
 
-        transform.position = Vector3.MoveTowards(transform.position, GameController.instance.trackPoints[i].position, speed * Time.deltaTime);
 
-
-        if (transform.position == GameController.instance.trackPoints[i].position)
+        if (transform.position == TrackController.instance.trackRoutePoints[nextRoutePoint].position)
         {
-            i++;
+            nextRoutePoint++;
         }
 
         //if (transform.position == GameController.instance.trackPoints[GameController.instance.trackPoints.Length - 1].position)
-        if (i == GameController.instance.trackPoints.Length)
+        if (nextRoutePoint == TrackController.instance.trackRoutePoints.Length)
         {
-            transform.position = GameController.instance.trackPoints[0].position;
-            i = 1;
+            //transform.position = TrackController.instance.trackRoutePoints[0].position;
+            TrackController.instance.activeTracks.Remove(this.gameObject);
+            Destroy(this.gameObject);
+
+            Stats.heartCount--;
+            main.UpdateHearts();
+
+            if (Stats.heartCount == 0)
+            {
+                main.RestartPanel.SetActive(true);
+                Time.timeScale = 0;
+            }
+            //nextRoutePoint = 1;
         }
 
 
-        if (i < GameController.instance.trackPoints.Length - 1)
+        if (nextRoutePoint < TrackController.instance.trackRoutePoints.Length - 1 && !isRotate)
         {
-            var currentDirection = RouteDirection(i);
+            var currentDirection = RouteDirection(nextRoutePoint);
 
-            if (currentDirection == Vector3.up)
+            if (currentDirection == Vector3.up && transform.position.y > TrackController.instance.trackRoutePoints[nextRoutePoint].position.y - rotateStartDistance)
             {
 
-                if (transform.position.y > GameController.instance.trackPoints[i].position.y - rotateStartDistance && transform.position.y < GameController.instance.trackPoints[i].position.y)
-                {
-                    if (!isRotate)
-                    {
-                        var furureDirection = RouteDirection(i + 1);
-                        if (furureDirection == Vector3.right)
-                            rotatedirection = RotateDirection.Right;
-                        else if (furureDirection == Vector3.left)
-                            rotatedirection = RotateDirection.Left;
-                    }
+                //if (transform.position.y > GameController.instance.trackPoints[i].position.y - rotateStartDistance)
+                //{
+                //if (!isRotate)
+                //{
+                var furureDirection = RouteDirection(nextRoutePoint + 1);
+                if (furureDirection == Vector3.right)
+                    rotatedirection = RotateDirection.Right;
+                else if (furureDirection == Vector3.left)
+                    rotatedirection = RotateDirection.Left;
+                //}
 
-                    isRotate = true;
-                }
+                isRotate = true;
+                //}
             }
-            else if (currentDirection == Vector3.right)
+            else if (currentDirection == Vector3.right && transform.position.x > TrackController.instance.trackRoutePoints[nextRoutePoint].position.x - rotateStartDistance)
             {
-                if (transform.position.x > GameController.instance.trackPoints[i].position.x - rotateStartDistance && transform.position.x < GameController.instance.trackPoints[i].position.x)
-                {
-                    if (!isRotate)
-                    {
-                        var furureDirection = RouteDirection(i + 1);
-                        if (furureDirection == Vector3.up)
-                            rotatedirection = RotateDirection.Up;
-                        else if (furureDirection == Vector3.down)
-                            rotatedirection = RotateDirection.Down;
-                    }
+                //if (transform.position.x > GameController.instance.trackPoints[i].position.x - rotateStartDistance)
+                //{
+                //if (!isRotate)
+                //{
+                var furureDirection = RouteDirection(nextRoutePoint + 1);
+                if (furureDirection == Vector3.up)
+                    rotatedirection = RotateDirection.Up;
+                else if (furureDirection == Vector3.down)
+                    rotatedirection = RotateDirection.Down;
+                //}
 
-                    isRotate = true;
-                }
+                isRotate = true;
+                //}
             }
-            else if (currentDirection == Vector3.left)
+            else if (currentDirection == Vector3.left && transform.position.x < TrackController.instance.trackRoutePoints[nextRoutePoint].position.x + rotateStartDistance)
             {
-                if (transform.position.x < GameController.instance.trackPoints[i].position.x + rotateStartDistance && transform.position.x > GameController.instance.trackPoints[i].position.x)
-                {
-                    if (!isRotate)
-                    {
-                        var furureDirection = RouteDirection(i + 1);
-                        if (furureDirection == Vector3.up)
-                            rotatedirection = RotateDirection.Up;
-                        else if (furureDirection == Vector3.down)
-                            rotatedirection = RotateDirection.Down;
-                    }
+                //if (transform.position.x < GameController.instance.trackPoints[i].position.x + rotateStartDistance)
+                //{
+                //if (!isRotate)
+                //{
+                var furureDirection = RouteDirection(nextRoutePoint + 1);
+                if (furureDirection == Vector3.up)
+                    rotatedirection = RotateDirection.Up;
+                else if (furureDirection == Vector3.down)
+                    rotatedirection = RotateDirection.Down;
+                //}
 
-                    isRotate = true;
-                }
+                isRotate = true;
+                //}
+            }
+
+            //isRotate = true;
+            if (isRotate)
+            {
+
+                if (rotatedirection == RotateDirection.Right)
+                    rotationZ = -90;
+                else if (rotatedirection == RotateDirection.Left)
+                    rotationZ = 90;
+                else if (rotatedirection == RotateDirection.Up)
+                    rotationZ = 0;
+                else if (rotatedirection == RotateDirection.Down)
+                    rotationZ = 180;
+
+                rotationTarget = Quaternion.Euler(0, 0, rotationZ);
             }
 
         }
 
         if (isRotate)
         {
+            
+
+            //if (rotatedirection == RotateDirection.Right)
+            //    rotationZ = -90;
+            //else if (rotatedirection == RotateDirection.Left)
+            //    rotationZ = 90;
+            //else if (rotatedirection == RotateDirection.Up)
+            //    rotationZ = 0;
+            //else if (rotatedirection == RotateDirection.Down)
+            //    rotationZ = 180;
+             
+
             var roatationStep = speed * Time.deltaTime * rotationSpeed; ;
+            //rotationTarget = Quaternion.Euler(0, 0, rotationZ);
+            transform.GetChild(0).rotation = Quaternion.RotateTowards(transform.GetChild(0).rotation, rotationTarget, roatationStep);
 
-            if (rotatedirection == RotateDirection.Right)
-            {
-                rotationTarget = Quaternion.Euler(0, 0, -90);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, rotationTarget, roatationStep);
-            }
-            else if (rotatedirection == RotateDirection.Left)
-            {
-                rotationTarget = Quaternion.Euler(0, 0, 90);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, rotationTarget, roatationStep);
-            }
-            else if (rotatedirection == RotateDirection.Up)
-            {
-                rotationTarget = Quaternion.Euler(0, 0, 0);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, rotationTarget, roatationStep);
-            }
-            else if (rotatedirection == RotateDirection.Down)
-            {
-                rotationTarget = Quaternion.Euler(0, 0, 180);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, rotationTarget, roatationStep);
-            }
-
-            if (transform.rotation == rotationTarget)
+            if (transform.GetChild(0).rotation == rotationTarget)
                 isRotate = false;
         }
     }
 
-    private Vector3 RouteDirection(int i)
+    public void GetDamage(float damage)
     {
-        var heading = GameController.instance.trackPoints[i].position - GameController.instance.trackPoints[i - 1].position;
-        var distance = heading.magnitude;
-        var direction = heading / distance;
-        return direction;
+        healthAmount -= damage;
+
+        if (healthAmount > 0)
+        {
+            transform.GetChild(1).gameObject.GetComponent<HealthBar>().SetHealthValue(healthAmount, maxHealthAmount);
+        }
+        else if (healthAmount <= 0)
+        {
+            soundEffector.PLayTrackExposionSound();
+            
+            //TrackController.instance.textCoinCount.text = TrackController.instance.coinCount.ToString();
+            TrackController.instance.activeTracks.Remove(this.gameObject);
+            Destroy(this.gameObject);
+
+            Stats.coinCount += reward;
+            main.UpdateCoins();
+        }
+
+    }
+
+    private Vector3 RouteDirection(int point)
+    {
+        var heading = TrackController.instance.trackRoutePoints[point].position - TrackController.instance.trackRoutePoints[point - 1].position;
+        //var distance = heading.magnitude;
+        //var direction = heading / distance;
+        return heading.normalized;//direction;
     }
 }

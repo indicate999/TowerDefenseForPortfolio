@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - TowerSide
+  - UI
+  - SoundEffector
+  - Main
   layers:
   - Default
   - TransparentFX
