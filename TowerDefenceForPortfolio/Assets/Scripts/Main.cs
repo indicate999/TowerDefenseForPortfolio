@@ -10,6 +10,7 @@ public class Main : MonoBehaviour
     [SerializeField] private Text textCoinCount;
     public GameObject RestartPanel;
 
+    //With the help of these methods, the UI text of hearts and coins is updated
     public void UpdateHearts()
     {
         textHeartCount.text = Stats.heartCount.ToString();
@@ -29,17 +30,5 @@ public class Main : MonoBehaviour
     public void LoadMenu()
     {
         SceneManager.LoadScene("Menu");
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -8,18 +8,13 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private Slider slider;
     [SerializeField] private Vector3 offset;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
+    //HelthBar is a child of the tracks and its position changes relative to the parent
     void Update()
     {
         slider.transform.position = Camera.main.WorldToScreenPoint(transform.parent.position + offset);
     }
 
+    //When the track receives damage this method is called and the health track display is updated in HelthBar
     public void SetHealthValue(float curruntHealth, float maxHealth)
     {
         slider.gameObject.SetActive(curruntHealth < maxHealth);

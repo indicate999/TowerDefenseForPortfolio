@@ -16,7 +16,6 @@ public class Stats : MonoBehaviour
         main = GameObject.FindGameObjectWithTag("Main").GetComponent<Main>();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         heartCount = startHeartCount;
@@ -24,11 +23,5 @@ public class Stats : MonoBehaviour
 
         coinCount = startCoinCount;
         main.UpdateCoins();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

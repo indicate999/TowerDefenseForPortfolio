@@ -320,11 +320,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f91dd133ca26ed9478f100f400336fbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealthAmount: 200
+  maxHealthAmount: 250
   speed: 0.6
   rotationSpeed: 105
   rotateStartDistance: 0.8
-  delay: 3.3
+  creationDelay: 3
   reward: 20
 --- !u!1 &7191169369760379283
 GameObject:

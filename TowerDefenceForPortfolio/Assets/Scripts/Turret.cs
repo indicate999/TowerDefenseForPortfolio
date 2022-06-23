@@ -5,7 +5,6 @@ using System.Linq;
 
 public class Turret : MonoBehaviour
 {
-    //public float health;
     [SerializeField] private float damage;
     [SerializeField] private float attackSpeed;
     [SerializeField] private float attackRadius;
@@ -16,13 +15,11 @@ public class Turret : MonoBehaviour
     private GameObject targetTrack;
 
     [HideInInspector] public bool isFire = false;
-    //[HideInInspector] public int turretTowerSideIndex;
-    //[HideInInspector] public int turretExampleIndex;
 
     private Animator animator;
     private AudioSource audiosource;
-    //private SoundEffector soundEffector;
 
+    //This method displays the attack radius of the turret in the editor
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
@@ -33,19 +30,11 @@ public class Turret : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         audiosource = GetComponent<AudioSource>();
-        //soundEffector = GameObject.FindGameObjectWithTag("SoundEffector").GetComponent<SoundEffector>();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //animator.SetBool("isFire", true);
-    }
-
-    // Update is called once per frame
     void Update()
     {
-
+        //Here the beginning of the turret attack is programmed if the track is within its reach.
         if (!isFire)
         {
             IEnumerable<GameObject> list = TrackController.instance.activeTracks;
@@ -54,63 +43,49 @@ public class Turret : MonoBehaviour
             foreach (var track in result)
             {
                 if (Vector3.Distance(track.transform.position, transform.position) <= attackRadius)
-                {
-                    animator.SetBool("isFire", true);
-                    isFire = true;
-                    targetTrack = track;
-
-                    audiosource.loop = true;
-                    audiosource.Play();
-                    //SoundEffector.isTurretSound[turretTowerSideIndex] = true;
-                    //soundEffector.PlayTurretAttackSound(turretExampleIndex, turretTowerSideIndex);
-                    //targetTrack.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
-                    //Debug.Log(animator.GetBool("isFire"));
-                }
+                    StartFire(track);
             }
         }
 
+        //Here the end of the turret attack is programmed if the track has been destroyed
         if (isFire && !TrackController.instance.activeTracks.Contains(targetTrack))
-        {
-            animator.SetBool("isFire", false);
-            isFire = false;
-            audiosource.loop = false;
-            audiosource.Stop();
-            //SoundEffector.isTurretSound[turretTowerSideIndex] = false;
-            targetTrack = null;
-        }
+            StopFire();
+
 
         if (isFire)
         {
-            //targetTrack.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
-
-            //Vector3 direction = targetTrack.transform.position - transform.position;
-            //transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
-            //transform.LookAt(targetTrack.transform, new Vector3(0, 0, 1));
+            //Here, the turn of the turret towards the track that is under its attack is programmed.
             Vector3 dir = targetTrack.transform.position - transform.position;
-
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
-
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
             targetTrack.GetComponent<Track>().GetDamage(damage * attackSpeed * Time.deltaTime);
 
-            
+            //Here the attack of the turret stops if the track goes out of reach
             if (Vector3.Distance(targetTrack.transform.position, transform.position) > attackRadius)
-            {
-                animator.SetBool("isFire", false);
-                isFire = false;
-                audiosource.loop = false;
-                audiosource.Stop();
-                //SoundEffector.isTurretSound[turretTowerSideIndex] = false;
-                //targetTrack.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-                targetTrack = null;
-            }
+                StopFire();
         }
+    }
 
-        //if (animator.GetBool("isFire") && !GameController.instance.activeTracks.Contains(targetTrack))
-        //{
-        //    animator.SetBool("isFire", false);
-        //    targetTrack = null;
-        //}
+    //Everything related to the beginning of the attack is programmed here
+    private void StartFire(GameObject track)
+    {
+        animator.SetBool("isFire", true);
+        isFire = true;
+        targetTrack = track;
+
+        audiosource.loop = true;
+        audiosource.Play();
+    }
+
+    //Everything related to the end of the attack is programmed here
+    private void StopFire()
+    {
+        animator.SetBool("isFire", false);
+        isFire = false;
+        targetTrack = null;
+
+        audiosource.loop = false;
+        audiosource.Stop();
     }
 }

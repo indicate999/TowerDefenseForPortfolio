@@ -6,10 +6,10 @@ using UnityEngine.SceneManagement;
 
 public class Menu : MonoBehaviour
 {
-    public GameObject ChooseLevelPanel;
-    public GameObject LevelButton;
+    [SerializeField] private GameObject ChooseLevelPanel;
+    [SerializeField] private GameObject LevelButton;
 
-    public float levelButtonsXdistance;
+    [SerializeField] private float levelButtonsXdistance;
 
     private GameObject[] activeLevelButtons;
     private int levelCount;
@@ -20,7 +20,7 @@ public class Menu : MonoBehaviour
         activeLevelButtons = new GameObject[levelCount];
     }
 
-    // Start is called before the first frame update
+    //When adding new levels to the build, the corresponding buttons in the menu automatically appear
     void Start()
     {
         float PosX = -((levelCount - 1) * levelButtonsXdistance) / 2;
@@ -40,11 +40,5 @@ public class Menu : MonoBehaviour
     public void LoadLevel(int sceneIndex)
     {
         SceneManager.LoadScene(sceneIndex);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

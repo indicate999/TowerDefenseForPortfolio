@@ -7,24 +7,24 @@ using System;
 
 public class TurretController : MonoBehaviour
 {
+    //All kinds of turrets are stored here
     [Serializable]
-    public class TurretArray
+    private class TurretArray
     {
         public GameObject[] turretSeries;
     }
 
     [SerializeField] private TurretArray[] turretExamples;
 
+    //Here are stored all the colliders of the towers where you can put the turret
     [SerializeField] private Collider2D[] towerColliders;
 
-    public static int towerCollidersArrayLenght;
-
+    //Here are all the ui elements used to work with turrets
     [SerializeField] private GameObject Canvas;
     [SerializeField] private GameObject BuyPanelPrefab;
     [SerializeField] private GameObject ChangePanelPrefab;
     [SerializeField] private float panelPositionDistance;
 
-    //[Serializable]
     private class Panels
     {
         public GameObject BuyPanel;
@@ -33,9 +33,10 @@ public class TurretController : MonoBehaviour
 
     private Panels[] panels;
 
+    //Here are stored all the turrets that are on the scene
     private GameObject[] activeTurrets;
 
-    //[Serializable]
+    //It stores information in indexes about all the turrets on the scene. In which tower it is located, what type of the turret
     private class TurrelTypes
     {
         public int turretExampleIndex;
@@ -44,166 +45,123 @@ public class TurretController : MonoBehaviour
 
     private TurrelTypes[] turretTypes;
 
+    //An index is stored here that determines the location of the currently selected turret
     private int currentTowerSideIndex;
 
+    //This is the point where the player clicks with a touch or mouse.
     private Vector2 screenPoint;
+
+    //This variable indicates whether the player clicked on the tower
     private bool isPoint = false;
-    //private bool isScenePoint = false;
 
     private Main main;
-    //private SoundEffector soundEffector;
 
-    //public static bool[] isTurretSound;
-
-    // Start is called before the first frame update
     private void Awake()
     {
         activeTurrets = new GameObject[towerColliders.Length];
         panels = new Panels[towerColliders.Length];
         turretTypes = new TurrelTypes[towerColliders.Length];
-        //isTurretSound = new bool[towerColliders.Length];
-        //towerCollidersArrayLenght = towerColliders.Length;
 
         main = GameObject.FindGameObjectWithTag("Main").GetComponent<Main>();
-        //soundEffector = GameObject.FindGameObjectWithTag("SoundEffector").GetComponent<SoundEffector>();
     }
 
+    //In this method, all the ui elements necessary for working with turrets are generated
     void Start()
     {
         for (int i = 0; i < towerColliders.Length; i++)
         {
             var screenPosition = Camera.main.WorldToScreenPoint(towerColliders[i].transform.position);
-            //Debug.Log(BuyPanelPrefab.name);
+            var panelPosition = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance, 0);
+
             Panels panel = new Panels();
             panel.BuyPanel = Instantiate(BuyPanelPrefab, Canvas.transform, false);
             var rectTransform = panel.BuyPanel.GetComponent<RectTransform>();
-            rectTransform.position = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance, 0);
+            rectTransform.position = panelPosition;
 
             for (int a = 0; a < turretExamples.Length; a++)
             {
-                panel.BuyPanel.transform.GetChild(a).GetChild(0).GetComponent<Text>().text = turretExamples[a].turretSeries[0].GetComponent<Turret>().purchasePrice.ToString();
+                panel.BuyPanel.transform.GetChild(a).GetChild(0).GetComponent<Text>().text
+                    = turretExamples[a].turretSeries[0].GetComponent<Turret>().purchasePrice.ToString();
             }
 
             panel.BuyPanel.SetActive(false);
 
             panel.ChangePanel = Instantiate(ChangePanelPrefab, Canvas.transform, false);
             var rectTransform2 = panel.ChangePanel.GetComponent<RectTransform>();
-            rectTransform2.position = new Vector3(screenPosition.x, screenPosition.y + panelPositionDistance, 0);//Camera.main.WorldToScreenPoint(new Vector3(towerColliders[i].transform.position.x, towerColliders[i].transform.position.y, 0));
+            rectTransform2.position = panelPosition;
+
             panel.ChangePanel.SetActive(false);
 
             panels[i] = panel;
         }
-
-        //SoundEffector.isTurretSound[0] = true;
-        //soundEffector.PlayTurretAttackSound(0);
-
-
-        //soundEffector.PlayTurretAttackSound(0);
-        //SoundEffector.isTurretSound[1] = true;
-        //soundEffector.PlayTurretAttackSound(1);
     }
 
-    // Update is called once per frame
     void Update()
     {
-
-
-        //if (Input.touchCount > 0)//(Input.GetMouseButtonDown(0))
-        //{
-
-        //Debug.Log("ddd");
-
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+        //Here, they calculate whether the player clicked on the tower and set the variables.
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began 
+            && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
         {
-            //Debug.Log("1111");
             screenPoint = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
             isPoint = true;
-
-            //if (!EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
-            //    isScenePoint = true;
         }
         else if (Input.GetMouseButtonDown(0) && Input.touchCount == 0 && Input.anyKeyDown && !EventSystem.current.IsPointerOverGameObject())
         {
-            //Debug.Log("2222");
             screenPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             isPoint = true;
-
-            //if (!EventSystem.current.IsPointerOverGameObject())
-            //    isScenePoint = true;
         }
 
-        if (isPoint) //&& isScenePoint)
+        //This code is executed if the player clicks on the tower
+        if (isPoint)
         {
-            //Debug.Log("3333");
-            //if (isScenePoint)//(!EventSystem.current.IsPointerOverGameObject() && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
-            //{
+            //All ui elements of previous towers are removed here if they were active
             for (int i = 0; i < towerColliders.Length; i++)
             {
-
                 if (panels[i].BuyPanel.activeSelf)
                     panels[i].BuyPanel.SetActive(false);
                 if (panels[i].ChangePanel.activeSelf)
                     panels[i].ChangePanel.SetActive(false);
             }
-            //}
 
-            //Debug.Log(screenPoint);
-            //Vector2 mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //Vector2 touchPoint = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+            //Here, ui elements are activated at the tower that the player clicked on. If the turret is not bought,
+            //then the buy panel is opened, if the tower is already purchased,
+            //then the change panel opens where you can upgrade the turret or sell it
             RaycastHit2D hit = Physics2D.Raycast(screenPoint, Vector2.zero);
             if (hit.collider != null)
             {
-                if (hit.collider.tag == "TowerSide")// && isScenePoint)
+                if (hit.collider.tag == "TowerSide")
                 {
                     for (int i = 0; i < towerColliders.Length; i++)
                     {
                         if (towerColliders[i] == hit.collider)
                         {
                             if (activeTurrets[i] == null)
-                            {
-                                if (!panels[i].BuyPanel.activeSelf)
-                                    panels[i].BuyPanel.SetActive(true);
-                                else if (panels[i].BuyPanel.activeSelf)
-                                    panels[i].BuyPanel.SetActive(false);
-                            }
+                                panels[i].BuyPanel.SetActive(true);
                             else if (activeTurrets[i] != null)
-                            {
-                                if (!panels[i].ChangePanel.activeSelf)
-                                    panels[i].ChangePanel.SetActive(true);
-                                else if (panels[i].ChangePanel.activeSelf)
-                                    panels[i].ChangePanel.SetActive(false);
-                            }
+                                panels[i].ChangePanel.SetActive(true);
 
                             currentTowerSideIndex = i;
 
                             break;
                         }
                     }
-
-                    //if (!EventSystem.current.IsPointerOverGameObject())
-                    //Instantiate(turrel1[0], new Vector3(hit.collider.transform.position.x, hit.collider.transform.position.y, 0), Quaternion.Euler(0, 0, 180));
                 }
             }
 
             isPoint = false;
-            //isScenePoint = false;
         }
-
-
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //var panel = Instantiate(BuyPanel, Canvas.transform, false);//, Vector3.zero, Quaternion.identity);
-        //var rectTransform = panel.GetComponent<RectTransform>();
-        //rectTransform.position = Input.mousePosition;
-        //Debug.Log(Input.mousePosition);
-        //}
-
     }
 
+    //This method is called when player click the turret purchase button
     public void BuyTurret(int trackNum)
     {
+        //With the help of an array that store information about all the turrets present on the scene,
+        //we get access to the information of the turret instance. In the future, this will be used frequently
         float buyPurchase = turretExamples[trackNum].turretSeries[0].GetComponent<Turret>().purchasePrice;
 
+        //If the player has enough money to buy a turret, then its cost is deducted from the player's account and
+        //an instance of the turret is added to the scene, which is also added to the List.
+        //Information is also stored in the indexes about the location of the turret and its type.
         if (Stats.coinCount >= buyPurchase)
         {
             Stats.coinCount -= buyPurchase;
@@ -211,9 +169,8 @@ public class TurretController : MonoBehaviour
 
             var currentTowerSidePosition = towerColliders[currentTowerSideIndex].transform.position;
 
-            activeTurrets[currentTowerSideIndex] = Instantiate(turretExamples[trackNum].turretSeries[0], new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
-            //activeTurrets[currentTowerSideIndex].GetComponent<Turret>().turretTowerSideIndex = currentTowerSideIndex;
-            //activeTurrets[currentTowerSideIndex].GetComponent<Turret>().turretExampleIndex = trackNum;
+            activeTurrets[currentTowerSideIndex] = Instantiate(turretExamples[trackNum].turretSeries[0]
+                , new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
 
             panels[currentTowerSideIndex].BuyPanel.SetActive(false);
 
@@ -224,72 +181,68 @@ public class TurretController : MonoBehaviour
             turretTypes[currentTowerSideIndex] = turretType;
 
             UpdateChangePanel();
-
-            //isTurretSound[currentTowerSideIndex] = true;
-            //soundEffector.PlayTurretAttackSound(trackNum, currentTowerSideIndex);
-            //SoundEffector.isTurretSound[trackNum] = true;
-            //soundEffector.PlayTurretAttackSound(trackNum);
-
-            //SoundEffector.isTurretSound[0] = true;
-            //soundEffector.PlayTurretAttackSound(0);
-
         }
     }
 
+    //This method is called when player click the turret upgrade button
     public void UpgradeTurret()
     {
-        int turretExampleLength = turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries.Length - 1;
+        int turretSeriesLength = turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries.Length - 1;
 
-        float upgradePurchase = turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex + 1]
+        float upgradePurchase 
+            = turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex + 1]
         .GetComponent<Turret>().purchasePrice;
 
-        if (Stats.coinCount >= upgradePurchase) //&& turretTypes[currentTowerSideIndex].turretSeriesIndex < turretExampleLength)
+        //If the player has enough money to upgrade the turret, then its cost is deducted from the player's account,
+        //the current turret is removed and its more upgraded version is created
+        if (Stats.coinCount >= upgradePurchase)
         {
             Stats.coinCount -= upgradePurchase;
             main.UpdateCoins();
 
             turretTypes[currentTowerSideIndex].turretSeriesIndex++;
 
-            if (turretTypes[currentTowerSideIndex].turretSeriesIndex < turretExampleLength)
+
+            if (turretTypes[currentTowerSideIndex].turretSeriesIndex < turretSeriesLength)
                 UpdateChangePanel();
+            else
+                //If the turret has been upgraded to the maximum, then the upgrade button is deactivated
+                panels[currentTowerSideIndex].ChangePanel.transform.GetChild(0).gameObject.SetActive(false);
 
             Destroy(activeTurrets[currentTowerSideIndex]);
             var currentTowerSidePosition = towerColliders[currentTowerSideIndex].transform.position;
-            activeTurrets[currentTowerSideIndex] = Instantiate(turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex], new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
-            //activeTurrets[currentTowerSideIndex].GetComponent<Turret>().turretTowerSideIndex = currentTowerSideIndex;
-            //activeTurrets[currentTowerSideIndex].GetComponent<Turret>().turretTowerSideIndex = currentTowerSideIndex;
+            activeTurrets[currentTowerSideIndex] = Instantiate(turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex]
+                , new Vector3(currentTowerSidePosition.x, currentTowerSidePosition.y, 0), Quaternion.Euler(0, 0, 180));
 
             panels[currentTowerSideIndex].ChangePanel.SetActive(false);
-
-            if (turretTypes[currentTowerSideIndex].turretSeriesIndex == turretExampleLength)
-                panels[currentTowerSideIndex].ChangePanel.transform.GetChild(0).gameObject.SetActive(false);
         }
     }
 
+    //This method is called when player click the turret sale button
     public void SaleTurret()
     {
+        //When a player sells a turret, he receives money on his account, and the sold turret is removed;
         Stats.coinCount += turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex]
         .GetComponent<Turret>().sellingPrice;
         main.UpdateCoins();
 
         Destroy(activeTurrets[currentTowerSideIndex]);
         activeTurrets[currentTowerSideIndex] = null;
-        //SoundEffector.isTurretSound[currentTowerSideIndex] = false;
 
-        panels[currentTowerSideIndex].ChangePanel.transform.GetChild(0).gameObject.SetActive(true);
+        //If the tower upgrade button was deactivated due to the fact that the tower was upgraded to the maximum,
+        //then after selling the tower, the upgrade button will be activated again
+        var upgradeButton = panels[currentTowerSideIndex].ChangePanel.transform.GetChild(0).gameObject;
+        if (!upgradeButton.activeSelf)
+            upgradeButton.SetActive(true);
 
         panels[currentTowerSideIndex].ChangePanel.SetActive(false);
 
         Array.Clear(turretTypes, currentTowerSideIndex, 1);
-        //turretTypes[currentTowerSide].turretExample = -1;
-        //turretTypes[currentTowerSide].turretSeriesIndex = -1;
-        //isTurretSound[currentTowerSideIndex] = false;
     }
 
+    //This method is needed to update the cost of upgrading and selling a turret in ui elements after buying or upgrading a turret
     private void UpdateChangePanel()
     {
-        //int turretExampleLength = turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries.Length - 1;
-
         panels[currentTowerSideIndex].ChangePanel.transform.GetChild(0).GetChild(0).GetComponent<Text>().text
         = turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex + 1]
         .GetComponent<Turret>().purchasePrice.ToString();
