@@ -13,7 +13,6 @@ public class TrackController : MonoBehaviour
     [HideInInspector] public List<GameObject> activeTracks = new List<GameObject>();
 
     private int waveNum = 1;
-    private float startZrotation;
 
     [HideInInspector] public static TrackController instance;
 
@@ -22,22 +21,8 @@ public class TrackController : MonoBehaviour
         instance = this;
     }
 
-    //In Start method, the rotation of the track is set depending on the direction of its further movement.
-    private void Start()
-    {
-        var startDirection = RouteDirection(1);
-
-        if (startDirection == Vector3.right)
-            startZrotation = -90;
-        else if (startDirection == Vector3.left)
-            startZrotation = 90;
-        if (startDirection == Vector3.up)
-            startZrotation = 0;
-        else if (startDirection == Vector3.down)
-            startZrotation = 180;
-    }
-
-    //In the Update method, tracks are created on the scene by calling carutina
+    //In the Update method, tracks are created on the scene by calling carutina.
+    //Every time all tracks are destroyed and the list of active tracks is empty, a new wave starts with the creation of new tracks.
     void Update()
     {
         if (activeTracks.Count == 0)
@@ -64,15 +49,8 @@ public class TrackController : MonoBehaviour
 
         for (int i = 0; i < trackCount; i++)
         {
-            activeTracks.Add(Instantiate(trackExamples[trackType], trackRoutePoints[0].position, Quaternion.Euler(0, 0, startZrotation)));
+            activeTracks.Add(Instantiate(trackExamples[trackType], new Vector3(trackRoutePoints[0].position.x, trackRoutePoints[0].position.y, 0), Quaternion.identity));
             yield return new WaitForSeconds(delay);
         }
-    }
-
-    //This method calculates the direction between the current and previous route points
-    public Vector3 RouteDirection(int point)
-    {
-        var heading = TrackController.instance.trackRoutePoints[point].position - TrackController.instance.trackRoutePoints[point - 1].position;
-        return heading.normalized;
     }
 }

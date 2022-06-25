@@ -55,6 +55,7 @@ public class TurretController : MonoBehaviour
     private bool isPoint = false;
 
     private Main main;
+    private SoundEffector soundEffector;
 
     private void Awake()
     {
@@ -63,6 +64,7 @@ public class TurretController : MonoBehaviour
         turretTypes = new TurrelTypes[towerColliders.Length];
 
         main = GameObject.FindGameObjectWithTag("Main").GetComponent<Main>();
+        soundEffector = GameObject.FindGameObjectWithTag("SoundEffector").GetComponent<SoundEffector>();
     }
 
     //In this method, all the ui elements necessary for working with turrets are generated
@@ -105,7 +107,7 @@ public class TurretController : MonoBehaviour
             screenPoint = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
             isPoint = true;
         }
-        else if (Input.GetMouseButtonDown(0) && Input.touchCount == 0 && Input.anyKeyDown && !EventSystem.current.IsPointerOverGameObject())
+        else if (Input.GetMouseButtonDown(0) && Input.touchCount == 0 && !EventSystem.current.IsPointerOverGameObject())
         {
             screenPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             isPoint = true;
@@ -167,6 +169,8 @@ public class TurretController : MonoBehaviour
             Stats.coinCount -= buyPurchase;
             main.UpdateCoins();
 
+            soundEffector.PLayBuildingSound();
+
             var currentTowerSidePosition = towerColliders[currentTowerSideIndex].transform.position;
 
             activeTurrets[currentTowerSideIndex] = Instantiate(turretExamples[trackNum].turretSeries[0]
@@ -200,6 +204,8 @@ public class TurretController : MonoBehaviour
             Stats.coinCount -= upgradePurchase;
             main.UpdateCoins();
 
+            soundEffector.PLayBuildingSound();
+
             turretTypes[currentTowerSideIndex].turretSeriesIndex++;
 
 
@@ -225,6 +231,8 @@ public class TurretController : MonoBehaviour
         Stats.coinCount += turretExamples[turretTypes[currentTowerSideIndex].turretExampleIndex].turretSeries[turretTypes[currentTowerSideIndex].turretSeriesIndex]
         .GetComponent<Turret>().sellingPrice;
         main.UpdateCoins();
+
+        soundEffector.PLaySaleSound();
 
         Destroy(activeTurrets[currentTowerSideIndex]);
         activeTurrets[currentTowerSideIndex] = null;

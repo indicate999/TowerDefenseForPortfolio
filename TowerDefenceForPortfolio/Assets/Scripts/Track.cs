@@ -20,7 +20,14 @@ public class Track : MonoBehaviour
     private bool isRotate = false;
 
     private Quaternion rotationTarget;
-    private float rotationZ;
+    private float activeRotationZ;
+
+    private float rotationZRight = -90;
+    private float rotationZLeft = 90;
+    private float rotationZUp = 0;
+    private float rotationZDown = 180;
+
+    private Vector3 normalizedNextRoutePointPosition;
 
     private Main main;
     private SoundEffector soundEffector;
@@ -34,40 +41,62 @@ public class Track : MonoBehaviour
     void Start()
     {
         healthAmount = maxHealthAmount;
+
+        //In Start method, the rotation of the track is set depending on the direction of its further movement.
+        var startDirection = RouteDirection(1);
+        float startZRotation = 0;
+
+        if (startDirection == Vector3.right)
+            startZRotation = rotationZRight;
+        else if (startDirection == Vector3.left)
+            startZRotation = rotationZLeft;
+        if (startDirection == Vector3.up)
+            startZRotation = rotationZUp;
+        else if (startDirection == Vector3.down)
+            startZRotation = rotationZDown;
+
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, startZRotation);
+
+        //In order not to set the variable (normalizedNextRoutePointPosition) to the position of the next route point every frame,
+        //the value of the variable is set only at the start and every time the track reaches the route point and the next route point changes
+        SetNormalizedNextRoutePointPosition();
     }
 
     void Update()
     {
         //Tracks move from point to point of the route
-        transform.position = Vector3.MoveTowards(transform.position, TrackController.instance.trackRoutePoints[nextRoutePoint].position, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, normalizedNextRoutePointPosition, speed * Time.deltaTime);
 
-        if (transform.position == TrackController.instance.trackRoutePoints[nextRoutePoint].position)
+        if (transform.position == normalizedNextRoutePointPosition)
         {
             nextRoutePoint++;
-        }
 
-        //If the track reaches the last point, it is immediately destroyed and the player receives a reward of coins.
-        if (nextRoutePoint == TrackController.instance.trackRoutePoints.Length)
-        {
-            TrackController.instance.activeTracks.Remove(this.gameObject);
-            Destroy(this.gameObject);
-
-            Stats.heartCount--;
-            main.UpdateHearts();
-
-            if (Stats.heartCount == 0)
+            //In order not to set the variable (normalizedNextRoutePointPosition) to the position of the next route point every frame,
+            //the value of the variable is set only at the start and every time the track reaches the route point and the next route point changes
+            if (nextRoutePoint < TrackController.instance.trackRoutePoints.Length)
+                SetNormalizedNextRoutePointPosition();
+            //If the track reaches the last point, it is immediately destroyed and the player receives a reward of coins.
+            else if (nextRoutePoint == TrackController.instance.trackRoutePoints.Length)
             {
-                main.RestartPanel.SetActive(true);
-                Time.timeScale = 0;
+                TrackController.instance.activeTracks.Remove(this.gameObject);
+                Destroy(this.gameObject);
+
+                Stats.heartCount--;
+                main.UpdateHearts();
+
+                if (Stats.heartCount == 0)
+                {
+                    main.RestartPanel.SetActive(true);
+                    Time.timeScale = 0;
+                }
             }
         }
-
 
         if (nextRoutePoint < TrackController.instance.trackRoutePoints.Length - 1 && !isRotate)
         {
             //Here the current and future direction of the track is calculated depending on the location of the route points
-            var currentDirection = TrackController.instance.RouteDirection(nextRoutePoint);
-            var furureDirection = TrackController.instance.RouteDirection(nextRoutePoint + 1);
+            var currentDirection = RouteDirection(nextRoutePoint);
+            var furureDirection = RouteDirection(nextRoutePoint + 1);
 
             //Depending on the current and future direction, the code calculates in which direction the track will turn
             //and the corresponding value of the angle of rotation along the z axis is assigned
@@ -75,9 +104,9 @@ public class Track : MonoBehaviour
                 || currentDirection == Vector3.down && transform.position.y < TrackController.instance.trackRoutePoints[nextRoutePoint].position.y + rotateStartDistance)
             {
                 if (furureDirection == Vector3.right)
-                    rotationZ = -90;
+                    activeRotationZ = rotationZRight;
                 else if (furureDirection == Vector3.left)
-                    rotationZ = 90;
+                    activeRotationZ = rotationZLeft;
 
                 isRotate = true;
             }
@@ -85,9 +114,9 @@ public class Track : MonoBehaviour
                 || currentDirection == Vector3.left && transform.position.x < TrackController.instance.trackRoutePoints[nextRoutePoint].position.x + rotateStartDistance)
             {
                 if (furureDirection == Vector3.up)
-                    rotationZ = 0;
+                    activeRotationZ = rotationZUp;
                 else if (furureDirection == Vector3.down)
-                    rotationZ = 180;
+                    activeRotationZ = rotationZDown;
 
                 isRotate = true;
             }
@@ -96,13 +125,27 @@ public class Track : MonoBehaviour
         //Here the rotation occurs until the track takes the desired angle of rotation
         if (isRotate)
         {
-            rotationTarget = Quaternion.Euler(0, 0, rotationZ);
+            rotationTarget = Quaternion.Euler(0, 0, activeRotationZ);
             var roatationStep = speed * Time.deltaTime * rotationSpeed; ;
             transform.GetChild(0).rotation = Quaternion.RotateTowards(transform.GetChild(0).rotation, rotationTarget, roatationStep);
 
             if (transform.GetChild(0).rotation == rotationTarget)
                 isRotate = false;
         }
+    }
+
+    //Sets a variable (normalizedNextRoutePointPosition) to the position of the next route point
+    private void SetNormalizedNextRoutePointPosition()
+    {
+        var nextRoutePointPosition = TrackController.instance.trackRoutePoints[nextRoutePoint].position;
+        normalizedNextRoutePointPosition = new Vector3(nextRoutePointPosition.x, nextRoutePointPosition.y, 0);
+    }
+
+    //This method calculates the direction between the current and previous route points
+    public Vector3 RouteDirection(int point)
+    {
+        var heading = TrackController.instance.trackRoutePoints[point].position - TrackController.instance.trackRoutePoints[point - 1].position;
+        return heading.normalized;
     }
 
     //This method is called when damage is received by the track. If the health of the track reaches zero,
@@ -125,8 +168,5 @@ public class Track : MonoBehaviour
             Stats.coinCount += reward;
             main.UpdateCoins();
         }
-
     }
-
-    
 }
