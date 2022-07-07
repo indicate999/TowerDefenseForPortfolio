@@ -319,9 +319,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de438fcdb93e38d48972e99704aa8332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChooseLevelPanel: {fileID: 1396460084}
-  LevelButton: {fileID: 4368495339838905162, guid: 36dccb0e71a879643927766153b79ca9, type: 3}
-  levelButtonsXdistance: 300
+  _chooseLevelPanel: {fileID: 1396460084}
+  _levelButton: {fileID: 4368495339838905162, guid: 36dccb0e71a879643927766153b79ca9, type: 3}
+  _levelButtonsXdistance: 300
 --- !u!1 &1396460084
 GameObject:
   m_ObjectHideFlags: 0

@@ -539,7 +539,7 @@ GameObject:
   - component: {fileID: 331852096}
   m_Layer: 0
   m_Name: Stats
-  m_TagString: Untagged
+  m_TagString: Stats
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -570,8 +570,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 358fd93fb09bb734c8d7b3ac0cf66afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startHeartCount: 5
-  startCoinCount: 75
+  _startHeartCount: 5
+  _startCoinCount: 75
+  _main: {fileID: 584358283}
 --- !u!1 &342441103
 GameObject:
   m_ObjectHideFlags: 0
@@ -2689,18 +2690,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 588ad0ac7dc59a24bb1ae5203d12ec51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turretExamples:
-  - turretSeries:
+  _turretExamples:
+  - TurretSeries:
     - {fileID: 1993799898612931498, guid: 5993adde48e8d0840adc72183dfe4152, type: 3}
     - {fileID: 360765527609174086, guid: d63a270d39f4ba140be207ea201c2f53, type: 3}
     - {fileID: 7524616671680651441, guid: 987352ed47d6bf7469d285d7d4562140, type: 3}
     - {fileID: 1773945153418436082, guid: a67de874017d0ab4183322ffb35b3aff, type: 3}
-  - turretSeries:
+  - TurretSeries:
     - {fileID: 6830547347486160929, guid: e783856398d81804891c1ead6024ee28, type: 3}
     - {fileID: 1538655596772935720, guid: 5664ac81afbdc05439e5042602a9f622, type: 3}
     - {fileID: 58635317080870642, guid: 70543c43fcbf7d0429bb7dfab037727a, type: 3}
     - {fileID: 3358051012026219381, guid: 3ab6f575a9944304a995b5920f883f07, type: 3}
-  towerColliders:
+  _towerColliders:
   - {fileID: 1412997791}
   - {fileID: 342441105}
   - {fileID: 311136237}
@@ -2718,10 +2719,12 @@ MonoBehaviour:
   - {fileID: 1281078066}
   - {fileID: 504946568}
   - {fileID: 1524821069}
-  Canvas: {fileID: 1842568273}
-  BuyPanelPrefab: {fileID: 4429382149251386114}
-  ChangePanelPrefab: {fileID: 347511160477244627}
-  panelPositionDistance: 130
+  _canvas: {fileID: 1842568273}
+  _buyPanelPrefab: {fileID: 4429382149251386114}
+  _changePanelPrefab: {fileID: 347511160477244627}
+  _panelOfsset: {x: 0, y: 130, z: 0}
+  _soundEffector: {fileID: 1321660467}
+  _stats: {fileID: 331852096}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -2794,17 +2797,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b936aa7e3ae32164594e6959103f9737, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackRoutePoints:
+  _trackRoutePoints:
   - {fileID: 2070034181}
   - {fileID: 1748503202}
   - {fileID: 2129537199}
   - {fileID: 1251123232}
   - {fileID: 882106864}
   - {fileID: 668793031}
-  trackExamples:
+  _trackExamples:
   - {fileID: 961960821835939403, guid: f10f2c36ac88d9049b72752704b02853, type: 3}
   - {fileID: 6186514982151739280, guid: 96132fb1f226cfb428b3f6db37a8c54b, type: 3}
-  activeTracks: []
 --- !u!1 &584358281
 GameObject:
   m_ObjectHideFlags: 0
@@ -2848,9 +2850,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be625930a309d97479bafefb97cd5a81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textHeartCount: {fileID: 144583997}
-  textCoinCount: {fileID: 1486228970}
-  RestartPanel: {fileID: 1672212714}
+  _textHeartCount: {fileID: 144583997}
+  _textCoinCount: {fileID: 1486228970}
+  _restartPanel: {fileID: 1672212714}
 --- !u!1 &668110024
 GameObject:
   m_ObjectHideFlags: 0
@@ -3438,9 +3440,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9379ec533f2fc64e80d3bbec3e74572, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackExposionSound: {fileID: 8300000, guid: 088ba5f47e717164ba69dce27276f256, type: 3}
-  buildingSound: {fileID: 8300000, guid: b6b4fdaea62645b4b89800973f1eae44, type: 3}
-  saleSound: {fileID: 8300000, guid: a3aa5fe379b4cad43b7d91212623a7ce, type: 3}
+  _trackExposionSound: {fileID: 8300000, guid: 088ba5f47e717164ba69dce27276f256, type: 3}
+  _buildingSound: {fileID: 8300000, guid: b6b4fdaea62645b4b89800973f1eae44, type: 3}
+  _saleSound: {fileID: 8300000, guid: a3aa5fe379b4cad43b7d91212623a7ce, type: 3}
 --- !u!1 &1412997789
 GameObject:
   m_ObjectHideFlags: 0

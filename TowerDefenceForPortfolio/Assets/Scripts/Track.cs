@@ -4,169 +4,190 @@ using UnityEngine;
 
 public class Track : MonoBehaviour
 {
-    [SerializeField] private float maxHealthAmount;
-    private float healthAmount;
+    [SerializeField] private float _maxHealthAmount;
+    private float _healthAmount;
 
-    [SerializeField] private float speed;
-    [SerializeField] private float rotationSpeed;
-    [SerializeField] private float rotateStartDistance;
+    [SerializeField] private float _speed;
+    [SerializeField] private float _rotationSpeed;
+    [SerializeField] private float _rotateStartDistance;
 
-    public float creationDelay;
+    [SerializeField] private float _creationDelay;
+    public float CreationDelay{ get { return _creationDelay; } }
 
-    [SerializeField] private float reward;
+    [SerializeField] private float _reward;
 
-    private int nextRoutePoint = 1;
+    private int _nextRoutePoint = 1;
 
-    private bool isRotate = false;
+    private bool _isRotate = false;
 
-    private Quaternion rotationTarget;
-    private float activeRotationZ;
+    private Quaternion _rotationTarget;
+    private float _activeRotationZ;
 
-    private float rotationZRight = -90;
-    private float rotationZLeft = 90;
-    private float rotationZUp = 0;
-    private float rotationZDown = 180;
+    private const float _rotationZRight = -90;
+    private const float _rotationZLeft = 90;
+    private const float _rotationZUp = 0;
+    private const float _rotationZDown = 180;
 
-    private Vector3 normalizedNextRoutePointPosition;
+    private Vector3 _normalizedByZAxisNextRoutePointPosition;
 
-    private Main main;
-    private SoundEffector soundEffector;
+    private Transform[] _trackRoutePoints;
+
+    private SoundEffector _soundEffector;
+    private Stats _stats;
+    private TrackController _trackController;
 
     private void Awake()
     {
-        main = GameObject.FindGameObjectWithTag("Main").GetComponent<Main>();
-        soundEffector = GameObject.FindGameObjectWithTag("SoundEffector").GetComponent<SoundEffector>();
+        _soundEffector = (SoundEffector)FindObjectOfType(typeof(SoundEffector));
+        _stats = (Stats)FindObjectOfType(typeof(Stats));
+        _trackController = (TrackController)FindObjectOfType(typeof(TrackController));
+
+        _trackRoutePoints = _trackController.TrackRoutePoints;
+
+        _healthAmount = _maxHealthAmount;
     }
 
-    void Start()
+    private void Start()
     {
-        healthAmount = maxHealthAmount;
+        SetStartTrackRotation();
+    }
 
-        //In Start method, the rotation of the track is set depending on the direction of its further movement.
+    private void Update()
+    {
+        ChangeTrackPosition();
+        ActionsAfterReachingRoutePoint();
+        SetTrackRotationValue();
+        MakeTrackRotation();
+    }
+
+    private void SetStartTrackRotation()
+    {
         var startDirection = RouteDirection(1);
         float startZRotation = 0;
 
         if (startDirection == Vector3.right)
-            startZRotation = rotationZRight;
+            startZRotation = _rotationZRight;
         else if (startDirection == Vector3.left)
-            startZRotation = rotationZLeft;
+            startZRotation = _rotationZLeft;
         if (startDirection == Vector3.up)
-            startZRotation = rotationZUp;
+            startZRotation = _rotationZUp;
         else if (startDirection == Vector3.down)
-            startZRotation = rotationZDown;
+            startZRotation = _rotationZDown;
 
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, startZRotation);
 
-        //In order not to set the variable (normalizedNextRoutePointPosition) to the position of the next route point every frame,
-        //the value of the variable is set only at the start and every time the track reaches the route point and the next route point changes
-        SetNormalizedNextRoutePointPosition();
+        SetNormalizedByZAxisNextRoutePointPosition();
     }
 
-    void Update()
+    private void ChangeTrackPosition()
     {
-        //Tracks move from point to point of the route
-        transform.position = Vector3.MoveTowards(transform.position, normalizedNextRoutePointPosition, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, _normalizedByZAxisNextRoutePointPosition, _speed * Time.deltaTime);
+    }
 
-        if (transform.position == normalizedNextRoutePointPosition)
+    private void ActionsAfterReachingRoutePoint()
+    {
+        if (transform.position == _normalizedByZAxisNextRoutePointPosition)
         {
-            nextRoutePoint++;
+            _nextRoutePoint++;
 
-            //In order not to set the variable (normalizedNextRoutePointPosition) to the position of the next route point every frame,
-            //the value of the variable is set only at the start and every time the track reaches the route point and the next route point changes
-            if (nextRoutePoint < TrackController.instance.trackRoutePoints.Length)
-                SetNormalizedNextRoutePointPosition();
-            //If the track reaches the last point, it is immediately destroyed and the player receives a reward of coins.
-            else if (nextRoutePoint == TrackController.instance.trackRoutePoints.Length)
+            if (_nextRoutePoint < _trackRoutePoints.Length)
+                SetNormalizedByZAxisNextRoutePointPosition();
+            else if (_nextRoutePoint == _trackRoutePoints.Length)
             {
-                TrackController.instance.activeTracks.Remove(this.gameObject);
-                Destroy(this.gameObject);
-
-                Stats.heartCount--;
-                main.UpdateHearts();
-
-                if (Stats.heartCount == 0)
-                {
-                    main.RestartPanel.SetActive(true);
-                    Time.timeScale = 0;
-                }
+                ActionsAfterReachingLastRoutePoint();
             }
         }
+    }
 
-        if (nextRoutePoint < TrackController.instance.trackRoutePoints.Length - 1 && !isRotate)
+    private void ActionsAfterReachingLastRoutePoint()
+    {
+        _trackController.RemoveElementFromActiveTracks(this.gameObject);
+        Destroy(this.gameObject);
+
+        _stats.RemoveHeart();
+    }
+
+    private void SetTrackRotationValue()
+    {
+        if (_nextRoutePoint < _trackRoutePoints.Length - 1 && !_isRotate)
         {
-            //Here the current and future direction of the track is calculated depending on the location of the route points
-            var currentDirection = RouteDirection(nextRoutePoint);
-            var furureDirection = RouteDirection(nextRoutePoint + 1);
+            var currentDirection = RouteDirection(_nextRoutePoint);
+            var furureDirection = RouteDirection(_nextRoutePoint + 1);
 
-            //Depending on the current and future direction, the code calculates in which direction the track will turn
-            //and the corresponding value of the angle of rotation along the z axis is assigned
-            if (currentDirection == Vector3.up && transform.position.y > TrackController.instance.trackRoutePoints[nextRoutePoint].position.y - rotateStartDistance
-                || currentDirection == Vector3.down && transform.position.y < TrackController.instance.trackRoutePoints[nextRoutePoint].position.y + rotateStartDistance)
+            float rotateUpStartDistance = _trackRoutePoints[_nextRoutePoint].position.y - _rotateStartDistance;
+            bool isRotateUpStarting = transform.position.y > rotateUpStartDistance;
+
+            float rotateDownStartDistance = _trackRoutePoints[_nextRoutePoint].position.y + _rotateStartDistance;
+            bool isRotateDownStarting = transform.position.y < rotateDownStartDistance;
+
+            float rotateRightStartDistance = _trackRoutePoints[_nextRoutePoint].position.x - _rotateStartDistance;
+            bool isRotateRightStarting = transform.position.x > rotateRightStartDistance;
+
+            float rotateLeftStartDistance = _trackRoutePoints[_nextRoutePoint].position.x + _rotateStartDistance;
+            bool isRotateLeftStarting = transform.position.x < rotateLeftStartDistance;
+
+            if (currentDirection == Vector3.up && isRotateUpStarting || currentDirection == Vector3.down && isRotateDownStarting)
             {
                 if (furureDirection == Vector3.right)
-                    activeRotationZ = rotationZRight;
+                    _activeRotationZ = _rotationZRight;
                 else if (furureDirection == Vector3.left)
-                    activeRotationZ = rotationZLeft;
+                    _activeRotationZ = _rotationZLeft;
 
-                isRotate = true;
+                _isRotate = true;
             }
-            else if (currentDirection == Vector3.right && transform.position.x > TrackController.instance.trackRoutePoints[nextRoutePoint].position.x - rotateStartDistance
-                || currentDirection == Vector3.left && transform.position.x < TrackController.instance.trackRoutePoints[nextRoutePoint].position.x + rotateStartDistance)
+            else if (currentDirection == Vector3.right && isRotateRightStarting || currentDirection == Vector3.left && isRotateLeftStarting)
             {
                 if (furureDirection == Vector3.up)
-                    activeRotationZ = rotationZUp;
+                    _activeRotationZ = _rotationZUp;
                 else if (furureDirection == Vector3.down)
-                    activeRotationZ = rotationZDown;
+                    _activeRotationZ = _rotationZDown;
 
-                isRotate = true;
+                _isRotate = true;
             }
         }
+    }
 
-        //Here the rotation occurs until the track takes the desired angle of rotation
-        if (isRotate)
+    private void MakeTrackRotation()
+    {
+        if (_isRotate)
         {
-            rotationTarget = Quaternion.Euler(0, 0, activeRotationZ);
-            var roatationStep = speed * Time.deltaTime * rotationSpeed; ;
-            transform.GetChild(0).rotation = Quaternion.RotateTowards(transform.GetChild(0).rotation, rotationTarget, roatationStep);
+            _rotationTarget = Quaternion.Euler(0, 0, _activeRotationZ);
+            var roatationStep = _speed * Time.deltaTime * _rotationSpeed; ;
+            transform.GetChild(0).rotation = Quaternion.RotateTowards(transform.GetChild(0).rotation, _rotationTarget, roatationStep);
 
-            if (transform.GetChild(0).rotation == rotationTarget)
-                isRotate = false;
+            if (transform.GetChild(0).rotation == _rotationTarget)
+                _isRotate = false;
         }
     }
 
-    //Sets a variable (normalizedNextRoutePointPosition) to the position of the next route point
-    private void SetNormalizedNextRoutePointPosition()
+    private void SetNormalizedByZAxisNextRoutePointPosition()
     {
-        var nextRoutePointPosition = TrackController.instance.trackRoutePoints[nextRoutePoint].position;
-        normalizedNextRoutePointPosition = new Vector3(nextRoutePointPosition.x, nextRoutePointPosition.y, 0);
+        var nextRoutePointPosition = _trackRoutePoints[_nextRoutePoint].position;
+        _normalizedByZAxisNextRoutePointPosition = new Vector3(nextRoutePointPosition.x, nextRoutePointPosition.y, 0);
     }
 
-    //This method calculates the direction between the current and previous route points
     public Vector3 RouteDirection(int point)
     {
-        var heading = TrackController.instance.trackRoutePoints[point].position - TrackController.instance.trackRoutePoints[point - 1].position;
+        var heading = _trackRoutePoints[point].position - _trackRoutePoints[point - 1].position;
         return heading.normalized;
     }
 
-    //This method is called when damage is received by the track. If the health of the track reaches zero,
-    //the track is destroyed and the player receives a reward in coins.
     public void GetDamage(float damage)
     {
-        healthAmount -= damage;
+        _healthAmount -= damage;
 
-        if (healthAmount > 0)
+        if (_healthAmount > 0)
         {
-            transform.GetChild(1).gameObject.GetComponent<HealthBar>().SetHealthValue(healthAmount, maxHealthAmount);
+            transform.GetChild(1).gameObject.GetComponent<HealthBar>().SetHealthValue(_healthAmount, _maxHealthAmount);
         }
-        else if (healthAmount <= 0)
+        else if (_healthAmount <= 0)
         {
-            soundEffector.PLayTrackExposionSound();
+            _soundEffector.PLayTrackExposionSound();
             
-            TrackController.instance.activeTracks.Remove(this.gameObject);
+            _trackController.RemoveElementFromActiveTracks(this.gameObject);
             Destroy(this.gameObject);
 
-            Stats.coinCount += reward;
-            main.UpdateCoins();
+            _stats.AddCoins(_reward);
         }
     }
 }

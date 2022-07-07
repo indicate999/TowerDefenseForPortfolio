@@ -8,6 +8,7 @@ TagManager:
   - UI
   - SoundEffector
   - Main
+  - Stats
   layers:
   - Default
   - TransparentFX

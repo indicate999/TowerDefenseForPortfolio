@@ -4,24 +4,55 @@ using UnityEngine;
 
 public class Stats : MonoBehaviour
 {
-    [SerializeField] private float startHeartCount;
-    [HideInInspector] public static float heartCount;
-    [SerializeField] private float startCoinCount;
-    [HideInInspector] public static float coinCount;
+    [SerializeField] private float _startHeartCount;
+    private float _heartCount;
 
-    private Main main;
+    [SerializeField] private float _startCoinCount;
+    private float _coinCount;
 
-    private void Awake()
+    [SerializeField] private Main _main;
+
+    private void Start()
     {
-        main = GameObject.FindGameObjectWithTag("Main").GetComponent<Main>();
+        StartStatsUpdate();
     }
 
-    void Start()
+    private void StartStatsUpdate()
     {
-        heartCount = startHeartCount;
-        main.UpdateHearts();
+        _heartCount = _startHeartCount;
+        _main.UpdateHearts(_heartCount);
 
-        coinCount = startCoinCount;
-        main.UpdateCoins();
+        _coinCount = _startCoinCount;
+        _main.UpdateCoins(_coinCount);
+    }
+
+    public void RemoveHeart()
+    {
+        _heartCount--;
+        _main.UpdateHearts(_heartCount);
+
+        if (_heartCount == 0)
+        {
+            _main.ActivateRestartPanel();
+            Time.timeScale = 0;
+        }
+    }
+
+    public void AddCoins(float earnPrice)
+    {
+        _coinCount += earnPrice;
+        _main.UpdateCoins(_coinCount);
+    }
+
+    public bool RemoveCoins(float purchasePrice)
+    {
+        if (_coinCount >= purchasePrice)
+        {
+            _coinCount -= purchasePrice;
+            _main.UpdateCoins(_coinCount);
+            return true;
+        }
+        else
+            return false;
     }
 }

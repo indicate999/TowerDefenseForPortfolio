@@ -6,19 +6,23 @@ using UnityEngine.SceneManagement;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private Text textHeartCount;
-    [SerializeField] private Text textCoinCount;
-    public GameObject RestartPanel;
+    [SerializeField] private Text _textHeartCount;
+    [SerializeField] private Text _textCoinCount;
+    [SerializeField] private GameObject _restartPanel;
 
-    //With the help of these methods, the UI text of hearts and coins is updated
-    public void UpdateHearts()
+    public void UpdateHearts(float heartCount)
     {
-        textHeartCount.text = Stats.heartCount.ToString();
+        _textHeartCount.text = heartCount.ToString();
     }
 
-    public void UpdateCoins()
+    public void UpdateCoins(float coinCount)
     {
-        textCoinCount.text = Stats.coinCount.ToString();
+        _textCoinCount.text = coinCount.ToString();
+    }
+
+    public void ActivateRestartPanel()
+    {
+        _restartPanel.SetActive(true);
     }
 
     public void RestartLevel()

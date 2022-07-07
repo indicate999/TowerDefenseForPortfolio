@@ -5,52 +5,53 @@ using UnityEngine.UI;
 
 public class TrackController : MonoBehaviour
 {
-    public Transform[] trackRoutePoints;
+    [SerializeField] private Transform[] _trackRoutePoints;
+    public Transform[] TrackRoutePoints { get { return _trackRoutePoints; } }
 
-    [SerializeField] private GameObject[] trackExamples;
+    [SerializeField] private GameObject[] _trackExamples;
 
-    //Here are stored all the tracks that are on the scene
-    [HideInInspector] public List<GameObject> activeTracks = new List<GameObject>();
+    private List<GameObject> _activeTracks = new List<GameObject>();
+    public List<GameObject> ActiveTracks { get { return _activeTracks; } }
 
-    private int waveNum = 1;
+    private int _waveNum = 1;
 
-    [HideInInspector] public static TrackController instance;
-
-    private void Awake()
+    private void Update()
     {
-        instance = this;
+        CreateTrackWave();
     }
 
-    //In the Update method, tracks are created on the scene by calling carutina.
-    //Every time all tracks are destroyed and the list of active tracks is empty, a new wave starts with the creation of new tracks.
-    void Update()
+    private void CreateTrackWave()
     {
-        if (activeTracks.Count == 0)
+        if (_activeTracks.Count == 0)
         {
-            int randomTrackType = Random.Range(0, trackExamples.Length);
+            int randomTrackType = Random.Range(0, _trackExamples.Length);
             int trackCount = 0;
             if (randomTrackType == 0)
             {
-                trackCount = waveNum * 2;
+                trackCount = _waveNum * 2;
             }
             else if (randomTrackType == 1)
             {
-                trackCount = waveNum;
+                trackCount = _waveNum;
             }
             StartCoroutine(CreateTracks(randomTrackType, trackCount));
-            waveNum++;
+            _waveNum++;
         }
     }
 
-    //In this carutin, tracks are created with a certain delay.
     IEnumerator CreateTracks(int trackType, int trackCount)
     {
-        float delay = trackExamples[trackType].GetComponent<Track>().creationDelay;
+        float delay = _trackExamples[trackType].GetComponent<Track>().CreationDelay;
 
         for (int i = 0; i < trackCount; i++)
         {
-            activeTracks.Add(Instantiate(trackExamples[trackType], new Vector3(trackRoutePoints[0].position.x, trackRoutePoints[0].position.y, 0), Quaternion.identity));
+            _activeTracks.Add(Instantiate(_trackExamples[trackType], new Vector3(_trackRoutePoints[0].position.x, _trackRoutePoints[0].position.y, 0), Quaternion.identity));
             yield return new WaitForSeconds(delay);
         }
+    }
+
+    public void RemoveElementFromActiveTracks(GameObject TrackObj)
+    {
+        _activeTracks.Remove(TrackObj);
     }
 }

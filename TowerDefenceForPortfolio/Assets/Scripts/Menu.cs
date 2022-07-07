@@ -6,34 +6,38 @@ using UnityEngine.SceneManagement;
 
 public class Menu : MonoBehaviour
 {
-    [SerializeField] private GameObject ChooseLevelPanel;
-    [SerializeField] private GameObject LevelButton;
+    [SerializeField] private GameObject _chooseLevelPanel;
+    [SerializeField] private GameObject _levelButton;
 
-    [SerializeField] private float levelButtonsXdistance;
+    [SerializeField] private float _levelButtonsXdistance;
 
-    private GameObject[] activeLevelButtons;
-    private int levelCount;
+    private int _levelCount;
+    private GameObject[] _activeLevelButtons;
 
     private void Awake()
     {
-        levelCount = SceneManager.sceneCountInBuildSettings - 1;
-        activeLevelButtons = new GameObject[levelCount];
+        _levelCount = SceneManager.sceneCountInBuildSettings - 1;
+        _activeLevelButtons = new GameObject[_levelCount];
     }
 
-    //When adding new levels to the build, the corresponding buttons in the menu automatically appear
-    void Start()
+    private void Start()
     {
-        float PosX = -((levelCount - 1) * levelButtonsXdistance) / 2;
+        LevelButtonsCreation();
+    }
 
-        for (int i = 0; i < levelCount; i++)
+    private void LevelButtonsCreation()
+    {
+        float PosX = -((_levelCount - 1) * _levelButtonsXdistance) / 2;
+
+        for (int i = 0; i < _levelCount; i++)
         {
-            activeLevelButtons[i] = Instantiate(LevelButton, ChooseLevelPanel.transform, false);
+            _activeLevelButtons[i] = Instantiate(_levelButton, _chooseLevelPanel.transform, false);
             int levelNum = i + 1;
-            activeLevelButtons[i].transform.GetChild(0).GetComponent<Text>().text = levelNum.ToString();
-            activeLevelButtons[i].GetComponent<Button>().onClick.AddListener(delegate { LoadLevel(levelNum); });
-            var rectTransform = activeLevelButtons[i].GetComponent<RectTransform>();
+            _activeLevelButtons[i].transform.GetChild(0).GetComponent<Text>().text = levelNum.ToString();
+            _activeLevelButtons[i].GetComponent<Button>().onClick.AddListener(delegate { LoadLevel(levelNum); });
+            var rectTransform = _activeLevelButtons[i].GetComponent<RectTransform>();
             rectTransform.localPosition = new Vector3(PosX, 0, 0);
-            PosX += levelButtonsXdistance;
+            PosX += _levelButtonsXdistance;
         }
     }
 

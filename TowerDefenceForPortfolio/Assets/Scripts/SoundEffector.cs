@@ -2,28 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class SoundEffector : MonoBehaviour
 {
-    private AudioSource audioSource;
-    [SerializeField] private AudioClip trackExposionSound, buildingSound, saleSound;
+    private AudioSource _audioSource;
+    [SerializeField] private AudioClip _trackExposionSound, _buildingSound, _saleSound;
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     public void PLayTrackExposionSound()
     {
-        audioSource.PlayOneShot(trackExposionSound);
+        _audioSource.PlayOneShot(_trackExposionSound);
     }
 
     public void PLayBuildingSound()
     {
-        audioSource.PlayOneShot(buildingSound);
+        _audioSource.PlayOneShot(_buildingSound);
     }
 
     public void PLaySaleSound()
     {
-        audioSource.PlayOneShot(saleSound);
+        _audioSource.PlayOneShot(_saleSound);
     }
 }

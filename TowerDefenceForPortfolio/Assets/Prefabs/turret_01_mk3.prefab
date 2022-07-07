@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 7524616671680651443}
   - component: {fileID: 7524616671680651440}
   - component: {fileID: 3175528704552561047}
-  - component: {fileID: 1479149983954387727}
   - component: {fileID: 6842241646430406367}
+  - component: {fileID: 1479149983954387727}
   m_Layer: 0
   m_Name: turret_01_mk3
   m_TagString: Untagged
@@ -126,24 +126,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1479149983954387727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7524616671680651441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0c973a3867f87a4e9eac74e55477e83, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 55
-  attackSpeed: 1
-  attackRadius: 3
-  purchasePrice: 40
-  sellingPrice: 35
-  isFire: 0
 --- !u!82 &6842241646430406367
 AudioSource:
   m_ObjectHideFlags: 0
@@ -240,3 +222,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1479149983954387727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7524616671680651441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0c973a3867f87a4e9eac74e55477e83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _damage: 55
+  _attackSpeed: 1
+  _attackRadius: 3
+  _purchasePrice: 40
+  _sellingPrice: 35

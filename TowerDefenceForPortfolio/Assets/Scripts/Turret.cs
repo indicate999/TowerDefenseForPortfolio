@@ -3,89 +3,124 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(AudioSource))]
 public class Turret : MonoBehaviour
 {
-    [SerializeField] private float damage;
-    [SerializeField] private float attackSpeed;
-    [SerializeField] private float attackRadius;
+    [SerializeField] private float _damage;
+    [SerializeField] private float _attackSpeed;
+    [SerializeField] private float _attackRadius;
 
-    public float purchasePrice;
-    public float sellingPrice;
+    [SerializeField] private float _purchasePrice;
+    public float PurchasePrice { get { return _purchasePrice; } }
 
-    private GameObject targetTrack;
+    [SerializeField] private float _sellingPrice;
+    public float SellingPrice { get { return _sellingPrice; } }
 
-    [HideInInspector] public bool isFire = false;
+    private GameObject _targetTrack;
 
-    private Animator animator;
-    private AudioSource audiosource;
+    private bool _isFire = false;
 
-    //This method displays the attack radius of the turret in the editor
+    private Animator _animator;
+    private AudioSource _audiosource;
+    private TrackController _trackController;
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
+        Gizmos.DrawWireSphere(transform.position, _attackRadius);
     }
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
-        audiosource = GetComponent<AudioSource>();
+        _animator = GetComponent<Animator>();
+        _audiosource = GetComponent<AudioSource>();
+        _trackController = (TrackController)FindObjectOfType(typeof(TrackController));
     }
 
-    void Update()
+    private void Update()
     {
-        //Here the beginning of the turret attack is programmed if the track is within its reach.
-        if (!isFire)
+        SearchAttackTarget();
+        StopAttackIfTargetWasDestroyed();
+        AttackProcess();
+    }
+
+    private void SearchAttackTarget()
+    {
+        if (!_isFire)
         {
-            IEnumerable<GameObject> list = TrackController.instance.activeTracks;
+            IEnumerable<GameObject> list = _trackController.ActiveTracks;
             IEnumerable<GameObject> result = list.Reverse();
 
             foreach (var track in result)
             {
-                if (Vector3.Distance(track.transform.position, transform.position) <= attackRadius)
-                    StartFire(track);
+                StartAttackIfTrackWithinReach(track);
             }
         }
+    }
 
-        //Here the end of the turret attack is programmed if the track has been destroyed
-        if (isFire && !TrackController.instance.activeTracks.Contains(targetTrack))
+    private void StartAttackIfTrackWithinReach(GameObject track)
+    {
+        if (GetDistanceToTarget(track.transform) <= _attackRadius)
+            StartFire(track);
+    }
+
+    private void StopAttackIfTargetWasDestroyed()
+    {
+        if (_isFire && !_trackController.ActiveTracks.Contains(_targetTrack))
             StopFire();
+    }
 
-
-        if (isFire)
+    private void AttackProcess()
+    {
+        if (_isFire)
         {
-            //Here, the turn of the turret towards the track that is under its attack is programmed.
-            Vector3 dir = targetTrack.transform.position - transform.position;
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
-            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-
-            targetTrack.GetComponent<Track>().GetDamage(damage * attackSpeed * Time.deltaTime);
-
-            //Here the attack of the turret stops if the track goes out of reach
-            if (Vector3.Distance(targetTrack.transform.position, transform.position) > attackRadius)
-                StopFire();
+            TurretRotationTowardsTarget();
+            TargetGetDamage();
+            StopAttackIfTargetOutOfReach();
         }
     }
 
-    //Everything related to the beginning of the attack is programmed here
-    private void StartFire(GameObject track)
+    private void TurretRotationTowardsTarget()
     {
-        animator.SetBool("isFire", true);
-        isFire = true;
-        targetTrack = track;
-
-        audiosource.loop = true;
-        audiosource.Play();
+        Vector3 dir = _targetTrack.transform.position - transform.position;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
-    //Everything related to the end of the attack is programmed here
+    private void TargetGetDamage()
+    {
+        _targetTrack.GetComponent<Track>().GetDamage(_damage * _attackSpeed * Time.deltaTime);
+    }
+
+    private void StopAttackIfTargetOutOfReach()
+    {
+        if(GetDistanceToTarget(_targetTrack.transform) > _attackRadius)
+                StopFire();
+    }
+
+    private float GetDistanceToTarget(Transform target)
+    {
+        return Vector3.Distance(target.position, transform.position);
+    }
+
+    private void StartFire(GameObject track)
+    {
+        _animator.SetBool("isFire", true);
+        _isFire = true;
+        _targetTrack = track;
+
+        _audiosource.loop = true;
+        _audiosource.Play();
+    }
+
     private void StopFire()
     {
-        animator.SetBool("isFire", false);
-        isFire = false;
-        targetTrack = null;
+        _animator.SetBool("isFire", false);
+        _isFire = false;
+        _targetTrack = null;
 
-        audiosource.loop = false;
-        audiosource.Stop();
+        _audiosource.loop = false;
+        _audiosource.Stop();
     }
 }
