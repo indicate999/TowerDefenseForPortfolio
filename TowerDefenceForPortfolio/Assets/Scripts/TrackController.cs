@@ -39,13 +39,15 @@ public class TrackController : MonoBehaviour
         }
     }
 
-    IEnumerator CreateTracks(int trackType, int trackCount)
+    private IEnumerator CreateTracks(int trackType, int trackCount)
     {
         float delay = _trackExamples[trackType].GetComponent<Track>().CreationDelay;
 
         for (int i = 0; i < trackCount; i++)
         {
-            _activeTracks.Add(Instantiate(_trackExamples[trackType], new Vector3(_trackRoutePoints[0].position.x, _trackRoutePoints[0].position.y, 0), Quaternion.identity));
+            var spawnPosition = new Vector3(_trackRoutePoints[0].position.x, _trackRoutePoints[0].position.y, 0);
+            var objectToSpawn = _trackExamples[trackType];
+            _activeTracks.Add(Instantiate(objectToSpawn, spawnPosition, Quaternion.identity));
             yield return new WaitForSeconds(delay);
         }
     }

@@ -38,9 +38,9 @@ public class Track : MonoBehaviour
 
     private void Awake()
     {
-        _soundEffector = (SoundEffector)FindObjectOfType(typeof(SoundEffector));
-        _stats = (Stats)FindObjectOfType(typeof(Stats));
-        _trackController = (TrackController)FindObjectOfType(typeof(TrackController));
+        _soundEffector = FindObjectOfType<SoundEffector>();
+        _stats = FindObjectOfType<Stats>();
+        _trackController = FindObjectOfType<TrackController>();
 
         _trackRoutePoints = _trackController.TrackRoutePoints;
 
@@ -152,7 +152,7 @@ public class Track : MonoBehaviour
         if (_isRotate)
         {
             _rotationTarget = Quaternion.Euler(0, 0, _activeRotationZ);
-            var roatationStep = _speed * Time.deltaTime * _rotationSpeed; ;
+            var roatationStep = _speed * Time.deltaTime * _rotationSpeed;
             transform.GetChild(0).rotation = Quaternion.RotateTowards(transform.GetChild(0).rotation, _rotationTarget, roatationStep);
 
             if (transform.GetChild(0).rotation == _rotationTarget)
@@ -172,22 +172,23 @@ public class Track : MonoBehaviour
         return heading.normalized;
     }
 
-    public void GetDamage(float damage)
+    public void TakeDamage(float damage)
     {
         _healthAmount -= damage;
 
         if (_healthAmount > 0)
         {
-            transform.GetChild(1).gameObject.GetComponent<HealthBar>().SetHealthValue(_healthAmount, _maxHealthAmount);
+            transform.GetChild(1).gameObject.GetComponent<HealthBar>().SetBarValue(_healthAmount, _maxHealthAmount);
         }
         else if (_healthAmount <= 0)
         {
             _soundEffector.PLayTrackExposionSound();
             
             _trackController.RemoveElementFromActiveTracks(this.gameObject);
-            Destroy(this.gameObject);
 
             _stats.AddCoins(_reward);
+
+            Destroy(this.gameObject);
         }
     }
 }

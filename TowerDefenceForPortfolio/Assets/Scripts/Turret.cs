@@ -35,7 +35,7 @@ public class Turret : MonoBehaviour
     {
         _animator = GetComponent<Animator>();
         _audiosource = GetComponent<AudioSource>();
-        _trackController = (TrackController)FindObjectOfType(typeof(TrackController));
+        _trackController = FindObjectOfType<TrackController>();
     }
 
     private void Update()
@@ -61,7 +61,8 @@ public class Turret : MonoBehaviour
 
     private void StartAttackIfTrackWithinReach(GameObject track)
     {
-        if (GetDistanceToTarget(track.transform) <= _attackRadius)
+        bool canFire = GetDistanceToTarget(track.transform) <= _attackRadius;
+        if (canFire)
             StartFire(track);
     }
 
@@ -76,7 +77,7 @@ public class Turret : MonoBehaviour
         if (_isFire)
         {
             TurretRotationTowardsTarget();
-            TargetGetDamage();
+            TargetTakeDamage();
             StopAttackIfTargetOutOfReach();
         }
     }
@@ -88,9 +89,9 @@ public class Turret : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
-    private void TargetGetDamage()
+    private void TargetTakeDamage()
     {
-        _targetTrack.GetComponent<Track>().GetDamage(_damage * _attackSpeed * Time.deltaTime);
+        _targetTrack.GetComponent<Track>().TakeDamage(_damage * _attackSpeed * Time.deltaTime);
     }
 
     private void StopAttackIfTargetOutOfReach()
