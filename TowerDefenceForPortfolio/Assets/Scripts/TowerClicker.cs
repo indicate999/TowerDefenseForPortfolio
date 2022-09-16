@@ -12,11 +12,6 @@ public class TowerClicker : MonoBehaviour
 
     private TowerActivator _activator;
 
-    void Start()
-    {
-
-    }
-
     private void Update()
     {
         GetClickPosition();

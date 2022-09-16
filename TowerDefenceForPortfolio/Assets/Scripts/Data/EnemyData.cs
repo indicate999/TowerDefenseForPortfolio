@@ -12,6 +12,7 @@ public class EnemyData : ScriptableObject
     [SerializeField] private float _rotateStartDistance;
     [SerializeField] private float _creationDelay;
     [SerializeField] private float _reward;
+    [SerializeField] private int _spawnMultiplier;
 
     public Sprite Sprite { get { return _sprite; } }
     public float MaxHealthAmount { get { return _maxHealthAmount; } }
@@ -20,4 +21,5 @@ public class EnemyData : ScriptableObject
     public float RotateStartDistance { get { return _rotateStartDistance; } }
     public float CreationDelay { get { return _creationDelay; } }
     public float Reward { get { return _reward; } }
+    public int SpawnMultiplier { get { return _spawnMultiplier; } }
 }

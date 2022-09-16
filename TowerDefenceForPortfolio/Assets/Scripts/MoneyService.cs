@@ -6,18 +6,15 @@ public class MoneyService : MonoBehaviour
 {
     private float _coinCount;
 
-    private GameSettingsData _gameSettings;
-    private UI _ui;
+    [SerializeField] GameSettingsDTO _gameSettingsDTO;
+    [SerializeField] private UI _ui;
 
-    // Start is called before the first frame update
-    void Awake()
-    {
-        _gameSettings = FindObjectOfType<GameSettingsDTO>().GameSettings;
-        _ui = FindObjectOfType<UI>();
-    }
+    private GameSettingsData _gameSettings;
 
     private void Start()
     {
+        _gameSettings = _gameSettingsDTO.GameSettings;
+
         StartCoinsUpdate();
     }
 

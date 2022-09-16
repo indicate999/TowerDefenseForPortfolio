@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
+    [SerializeField] private EnemySpawner _enemySpawner;
+
     private Transform[] _enemyRoutePoints;
     private float _speed;
 
     private Vector3 _normalizedByZAxisNextRoutePointPosition;
     private int _nextRoutePoint = 1;
 
+    private HealthComponent _levelHealth;
     public int NextRoutePoint { get { return _nextRoutePoint; } }
 
     private void Start()
     {
+        _levelHealth = GameObject.FindGameObjectWithTag("LevelHealth").GetComponent<HealthComponent>();
+        _enemySpawner = FindObjectOfType<EnemySpawner>();
+
         SetNormalizedByZAxisNextRoutePointPosition();
     }
 
@@ -21,12 +27,6 @@ public class EnemyMovement : MonoBehaviour
     {
         ChangeEnemyPosition();
         ActionsAfterReachingRoutePoint();
-    }
-
-    public void SetMovementParameters(Transform[] trackRoutePoints, float speed)
-    {
-        _enemyRoutePoints = trackRoutePoints;
-        _speed = speed;
     }
 
     private void ChangeEnemyPosition()
@@ -52,16 +52,18 @@ public class EnemyMovement : MonoBehaviour
     private void ActionsAfterReachingLastRoutePoint()
     {
         gameObject.SetActive(false);
-
-        //_trackController.RemoveElementFromActiveTracks(this.gameObject);
-        //Destroy(this.gameObject);
-
-        //_stats.RemoveHeart();
+        _enemySpawner.RemoveOneEnemyFromCount();
+        _levelHealth.TakeDamage(1);
     }
 
     private void SetNormalizedByZAxisNextRoutePointPosition()
     {
         var nextRoutePointPosition = _enemyRoutePoints[_nextRoutePoint].position;
         _normalizedByZAxisNextRoutePointPosition = new Vector3(nextRoutePointPosition.x, nextRoutePointPosition.y, 0);
+    }
+    public void SetMovementParameters(Transform[] trackRoutePoints, float speed)
+    {
+        _enemyRoutePoints = trackRoutePoints;
+        _speed = speed;
     }
 }

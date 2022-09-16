@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent( typeof(TowerActivator), typeof(TowerButtons))]
+[RequireComponent(typeof(TowerActivator), typeof(TowerButtons))]
 public class TowerUIComponent : MonoBehaviour
 {
     [SerializeField] private GameObject _turretObj;
 
     private TurretDTO _turretDTO;
-
-    private int _turretExampleIndex;
-    private int _turretSerieIndex;
 
     private const int _zStartTurretRotation = 180;
 
@@ -21,28 +18,26 @@ public class TowerUIComponent : MonoBehaviour
     private SoundEffector _soundEffector;
     private SpriteRenderer _spriteRenderer;
     private Animator _animator;
+    private AudioSource _audioSource;
+    private TurretPointer _pointer;
+    private TurretAttack _turretAttack;
     private TowerActivator _activator;
     private TowerButtons _buttons;
 
-    private void Awake()
+    private void Start()
     {
         _turretDTO = FindObjectOfType<TurretDTO>();
         _moneyService = FindObjectOfType<MoneyService>();
         _soundEffector = FindObjectOfType<SoundEffector>();
         _spriteRenderer = _turretObj.GetComponent<SpriteRenderer>();
         _animator = _turretObj.GetComponent<Animator>();
+        _audioSource = _turretObj.GetComponent<AudioSource>();
+        _pointer = _turretObj.GetComponent<TurretPointer>();
+        _turretAttack = _turretObj.GetComponent<TurretAttack>();
         _activator = GetComponent<TowerActivator>();
         _buttons = GetComponent<TowerButtons>();
-    }
 
-    private void Start()
-    {
         SetBuyPanel();
-    }
-
-    private void Update()
-    {
-        //Debug.Log(_spriteRenderer.sprite);
     }
 
     private void LateUpdate()
@@ -65,9 +60,9 @@ public class TowerUIComponent : MonoBehaviour
         return _turretObj.activeSelf;
     }
 
-    public void BuyTurret(int turretNum)
+    public void BuyTurret(int turretExampleIndex)
     {
-        var turret = _turretDTO.GetTurretByIndices(turretNum, 0);
+        var turret = _turretDTO.GetTurretByIndices(turretExampleIndex, 0);
 
         float buyPurchase = turret.PurchasePrice; 
 
@@ -79,14 +74,16 @@ public class TowerUIComponent : MonoBehaviour
 
             currentTurretSprite = turret.Sprite;
             _animator.runtimeAnimatorController = turret.AnimatorController;
+            _audioSource.clip = _turretDTO.GetTurretAudioClip(turretExampleIndex);
+
+            _turretAttack.SetAttackParameters(turret.Damage, turret.AttackSpeed, turret.AttackRadius);
 
             _turretObj.transform.eulerAngles = new Vector3(0, 0, _zStartTurretRotation);
             _turretObj.SetActive(true);
 
             _activator.SetActiveBuyPanel(false);
 
-            _turretExampleIndex = turretNum;
-            _turretSerieIndex = 0;
+            _pointer.SetIndicesForNewTurret(turretExampleIndex);
 
             UpdateChangePanel();
 
@@ -96,9 +93,9 @@ public class TowerUIComponent : MonoBehaviour
 
     public void UpgradeTurret()
     {
-        int turretSeriesLength = _turretDTO.GetTurretSeriesLength(_turretExampleIndex) - 1;
+        int turretSeriesLength = _turretDTO.GetTurretSeriesLength(_pointer.TurretExampleIndex) - 1;
 
-        float upgradePurchase = _turretDTO.GetTurretByIndices(_turretExampleIndex, _turretSerieIndex + 1).PurchasePrice;
+        float upgradePurchase = _turretDTO.GetTurretByIndices(_pointer.TurretExampleIndex, _pointer.TurretSerieIndex + 1).PurchasePrice;
 
 
         if (_moneyService.EnoughCoinsCheck(upgradePurchase))
@@ -107,18 +104,20 @@ public class TowerUIComponent : MonoBehaviour
 
             _soundEffector.PLayBuildingSound();
 
-            _turretSerieIndex++;
+            _pointer.IncreaseTurretSeriesIndex();
 
-            if (_turretSerieIndex < turretSeriesLength)
+            if (_pointer.TurretSerieIndex < turretSeriesLength)
                 UpdateChangePanel();
             else
                 _buttons.SetActiveUpgradeButton(false);
 
-            var turret = _turretDTO.GetTurretByIndices(_turretExampleIndex, _turretSerieIndex);
+            var turret = _turretDTO.GetTurretByIndices(_pointer.TurretExampleIndex, _pointer.TurretSerieIndex);
 
             currentTurretSprite = turret.Sprite;
             _animator.runtimeAnimatorController = turret.AnimatorController;
-            
+
+            _turretAttack.SetAttackParameters(turret.Damage, turret.AttackSpeed, turret.AttackRadius);
+
             _turretObj.transform.eulerAngles = new Vector3(0, 0, _zStartTurretRotation);
 
             _activator.SetActiveChangePanel(false);
@@ -127,7 +126,7 @@ public class TowerUIComponent : MonoBehaviour
 
     public void SaleTurret()
     {
-        var sellingPrice = _turretDTO.GetTurretByIndices(_turretExampleIndex, _turretSerieIndex).SellingPrice;
+        var sellingPrice = _turretDTO.GetTurretByIndices(_pointer.TurretExampleIndex, _pointer.TurretSerieIndex).SellingPrice;
         _moneyService.AddCoins(sellingPrice);
 
         _soundEffector.PLaySaleSound();
@@ -135,6 +134,9 @@ public class TowerUIComponent : MonoBehaviour
         currentTurretSprite = null;
         _spriteRenderer.sprite = null;
         _animator.runtimeAnimatorController = null;
+        _audioSource.clip = null;
+
+        _turretAttack.SetAttackParameters(0, 0, 0);
 
         _turretObj.SetActive(false);
 
@@ -149,9 +151,9 @@ public class TowerUIComponent : MonoBehaviour
     private void UpdateChangePanel()
     {
         _buttons.UpgradeButton.transform.GetChild(0).GetComponent<Text>().text =
-            _turretDTO.GetTurretByIndices(_turretExampleIndex, _turretSerieIndex + 1).PurchasePrice.ToString();
+            _turretDTO.GetTurretByIndices(_pointer.TurretExampleIndex, _pointer.TurretSerieIndex + 1).PurchasePrice.ToString();
 
         _buttons.SaleButton.transform.GetChild(0).GetComponent<Text>().text =
-            _turretDTO.GetTurretByIndices(_turretExampleIndex, _turretSerieIndex).SellingPrice.ToString();
+            _turretDTO.GetTurretByIndices(_pointer.TurretExampleIndex, _pointer.TurretSerieIndex).SellingPrice.ToString();
     }
 }

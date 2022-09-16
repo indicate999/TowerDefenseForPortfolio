@@ -19,3 +19,4 @@ MonoBehaviour:
   _rotateStartDistance: 0.8
   _creationDelay: 1.8
   _reward: 10
+  _spawnMultiplier: 2

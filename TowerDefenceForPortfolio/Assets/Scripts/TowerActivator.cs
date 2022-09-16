@@ -7,18 +7,6 @@ public class TowerActivator : MonoBehaviour
     [SerializeField] private GameObject _buyPanel;
     [SerializeField] private GameObject _changePanel;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public bool GetBuyPanelActiveStatus()
     {
         return _buyPanel.activeSelf;

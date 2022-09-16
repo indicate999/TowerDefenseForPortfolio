@@ -6,8 +6,6 @@ public class TurretDTO : MonoBehaviour
 {
     [SerializeField] private TurretData[] _turretExamples;
 
-    //public TurretData[] TurretExamples { get { return _turretExamples; } }
-
     public TurretData.Turret GetTurretByIndices(int exampleIndex, int serieIndex)
     {
         return _turretExamples[exampleIndex].TurretSeries[serieIndex];
@@ -16,5 +14,10 @@ public class TurretDTO : MonoBehaviour
     public int GetTurretSeriesLength(int exampleIndex)
     {
         return _turretExamples[exampleIndex].TurretSeries.Length;
+    }
+
+    public AudioClip GetTurretAudioClip(int exampleIndex)
+    {
+        return _turretExamples[exampleIndex].AudioClip;
     }
 }

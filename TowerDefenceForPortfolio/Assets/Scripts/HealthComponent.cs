@@ -16,8 +16,8 @@ public class HealthComponent : MonoBehaviour
         } 
     }
 
-    public event Action<float, float> GotHurt;
-    public event Action Died;
+    public event Action<GameObject, float, float> GotHurt;
+    public event Action<GameObject> Died;
 
     public void TakeDamage(float damage)
     {
@@ -25,11 +25,11 @@ public class HealthComponent : MonoBehaviour
 
         if (_healthAmount > 0)
         {
-            GotHurt?.Invoke(_healthAmount, _maxHealthAmount);
+            GotHurt?.Invoke(this.gameObject, _healthAmount, _maxHealthAmount);
         }
         else if (_healthAmount <= 0)
         {
-            Died?.Invoke();
+            Died?.Invoke(this.gameObject);
         }
     }
 }

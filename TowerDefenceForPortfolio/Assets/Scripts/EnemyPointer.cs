@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyPointer : MonoBehaviour
 {
-    private int _enemyIndex;
+    private int _enemyExampleIndex;
 
-    public int EnemyIndex { get { return _enemyIndex; } set { _enemyIndex = value; } }
+    public int EnemyExampleIndex { get { return _enemyExampleIndex; } set { _enemyExampleIndex = value; } }
 }

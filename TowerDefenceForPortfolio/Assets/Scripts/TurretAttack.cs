@@ -1,41 +1,92 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Linq;
 
+[RequireComponent(typeof(CircleCollider2D))]
 public class TurretAttack : MonoBehaviour
 {
+    [SerializeField] private CircleCollider2D _cirleCollider;
+
     private float _damage;
     private float _attackSpeed;
     private float _attackRadius;
 
-    private Queue<GameObject> _enemies = new Queue<GameObject>();
+    private List<GameObject> _availableEnemies = new List<GameObject>();
 
-    private bool isFire = false;
+    private GameObject _targetEnemy;
 
-    void Start()
+    private bool _isFire = false;
+
+    public event Action StartedAttack;
+    public event Action StoppedAttack;
+
+
+    private void Start()
     {
-
+        SetAttackRadiusInCollider();
     }
 
     private void Update()
     {
         SearchAttackTarget();
-        StopAttackIfTargetWasDestroyed();
+        StopAttackIfTargetNotAvailable();
         AttackProcess();
     }
 
-    public void SetAttackParameters(float damage, float attackSpeed, float attackRadius)
+    private void SetAttackRadiusInCollider()
     {
-        _damage = damage;
-        _attackSpeed = attackSpeed;
-        _attackRadius = attackRadius;
+        _cirleCollider.radius = _attackRadius;
+    }
+
+    private void SearchAttackTarget()
+    {
+        if (!_isFire && _availableEnemies.Any())
+        {
+            _targetEnemy = _availableEnemies.OrderBy(s => s.GetComponent<EnemyID>().EnemyId).First();
+
+            StartedAttack?.Invoke();
+            _isFire = true;
+        }
+    }
+
+    private void StopAttackIfTargetNotAvailable()
+    {
+        if (_isFire && !_availableEnemies.Find(s => s == _targetEnemy))
+        {
+            StoppedAttack?.Invoke();
+            _targetEnemy = null;
+            _isFire = false;
+        }
+    }
+
+    private void AttackProcess()
+    {
+        if (_isFire)
+        {
+            TurretRotationTowardsTarget();
+            TargetTakeDamage();
+        }
+    }
+
+    private void TurretRotationTowardsTarget()
+    {
+        Vector3 dir = _targetEnemy.transform.position - transform.position;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+    }
+
+    private void TargetTakeDamage()
+    {
+        _targetEnemy.GetComponent<HealthComponent>().TakeDamage(_damage * _attackSpeed * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Enemy")
         {
-            _enemies.Enqueue(collision.gameObject);
+            _availableEnemies.Add(collision.gameObject);
         }
     }
 
@@ -43,87 +94,16 @@ public class TurretAttack : MonoBehaviour
     {
         if (collision.tag == "Enemy")
         {
-            _enemies.Dequeue();
+            _availableEnemies.Remove(collision.gameObject);
         }
     }
 
-    private void SearchAttackTarget()
+    public void SetAttackParameters(float damage, float attackSpeed, float attackRadius)
     {
-        //if (!_isFire)
-        //{
-        //IEnumerable<GameObject> list = _trackController.ActiveTracks;
-        //IEnumerable<GameObject> result = list.Reverse();
+        _damage = damage;
+        _attackSpeed = attackSpeed;
+        _attackRadius = attackRadius;
 
-        //foreach (var track in result)
-        //{
-        //    StartAttackIfTrackWithinReach(track);
-        //}
-        //}
-    }
-
-    private void StartAttackIfTrackWithinReach(GameObject track)
-    {
-        bool canFire = GetDistanceToTarget(track.transform) <= _attackRadius;
-        if (canFire)
-            StartFire(track);
-    }
-
-    private void StopAttackIfTargetWasDestroyed()
-    {
-        //if (_isFire && !_trackController.ActiveTracks.Contains(_targetTrack))
-        //   StopFire();
-    }
-
-    private void AttackProcess()
-    {
-        //if (_isFire)
-        //{
-        TurretRotationTowardsTarget();
-        TargetTakeDamage();
-        StopAttackIfTargetOutOfReach();
-        //}
-    }
-
-    private void TurretRotationTowardsTarget()
-    {
-        //Vector3 dir = _targetTrack.transform.position - transform.position;
-        //float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
-        //transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-    }
-
-    private void TargetTakeDamage()
-    {
-        //_targetTrack.GetComponent<Track>().TakeDamage(_damage * _attackSpeed * Time.deltaTime);
-    }
-
-    private void StopAttackIfTargetOutOfReach()
-    {
-        //if (GetDistanceToTarget(_targetTrack.transform) > _attackRadius)
-        StopFire();
-    }
-
-    private float GetDistanceToTarget(Transform target)
-    {
-        return Vector3.Distance(target.position, transform.position);
-    }
-
-    private void StartFire(GameObject track)
-    {
-        //_animator.SetBool("isFire", true);
-        //_isFire = true;
-        //_targetTrack = track;
-
-        //_audiosource.loop = true;
-        //_audiosource.Play();
-    }
-
-    private void StopFire()
-    {
-        //_animator.SetBool("isFire", false);
-        //_isFire = false;
-        //_targetTrack = null;
-
-        //_audiosource.loop = false;
-        //_audiosource.Stop();
+        SetAttackRadiusInCollider();
     }
 }

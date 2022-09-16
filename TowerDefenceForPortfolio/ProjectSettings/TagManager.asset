@@ -9,6 +9,8 @@ TagManager:
   - SoundEffector
   - Main
   - Stats
+  - Enemy
+  - LevelHealth
   layers:
   - Default
   - TransparentFX

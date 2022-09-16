@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(EnemyMovement))]
 public class EnemyRotation : MonoBehaviour
 {
     [SerializeField] private Transform _enemyBody;
@@ -26,24 +27,17 @@ public class EnemyRotation : MonoBehaviour
     private void Start()
     {
         _enemyMovement = GetComponent<EnemyMovement>();
-        SetStartTrackRotation();
+
+        SetStartEnemyRotation();
     }
 
     private void Update()
     {
-        SetTrackRotationValue();
-        MakeTrackRotation();
+        SetEnemyRotationValue();
+        MakeEnemyRotation();
     }
 
-    public void SetRotationParameters(Transform[] trackRoutePoints, float speed, float rotationSpeed, float rotateStartDistance)
-    {
-        _enemyRoutePoints = trackRoutePoints;
-        _speed = speed;
-        _rotationSpeed = rotationSpeed;
-        _rotateStartDistance = rotateStartDistance;
-    }
-
-    private void SetStartTrackRotation()
+    private void SetStartEnemyRotation()
     {
         var startDirection = RouteDirection(1);
         float startZRotation = 0;
@@ -60,7 +54,7 @@ public class EnemyRotation : MonoBehaviour
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, startZRotation);
     }
 
-    private void SetTrackRotationValue()
+    private void SetEnemyRotationValue()
     {
         if (_enemyMovement.NextRoutePoint < _enemyRoutePoints.Length - 1 && !_isRotate)
         {
@@ -102,11 +96,10 @@ public class EnemyRotation : MonoBehaviour
         }
     }
 
-    private void MakeTrackRotation()
+    private void MakeEnemyRotation()
     {
         if (_isRotate)
         {
-            //_rotationTarget = Quaternion.Euler(0, 0, _activeRotationZ);
             var roatationStep = _speed * _rotationSpeed * Time.deltaTime;
             _enemyBody.rotation = Quaternion.RotateTowards(_enemyBody.rotation, _rotationTarget, roatationStep);
 
@@ -119,5 +112,13 @@ public class EnemyRotation : MonoBehaviour
     {
         var heading = _enemyRoutePoints[point].position - _enemyRoutePoints[point - 1].position;
         return heading.normalized;
+    }
+
+    public void SetRotationParameters(Transform[] trackRoutePoints, float speed, float rotationSpeed, float rotateStartDistance)
+    {
+        _enemyRoutePoints = trackRoutePoints;
+        _speed = speed;
+        _rotationSpeed = rotationSpeed;
+        _rotateStartDistance = rotateStartDistance;
     }
 }

@@ -302,7 +302,6 @@ GameObject:
   - component: {fileID: 7060886440173791099}
   - component: {fileID: 7236058012804690315}
   - component: {fileID: 1359859119349638866}
-  - component: {fileID: 3108750662268919253}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -391,19 +390,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &3108750662268919253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5501031319236970509}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdb7f1f457792da43ba92294ada2fd25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _slider: {fileID: 0}
 --- !u!1 &7570438996526284268
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,13 +490,16 @@ GameObject:
   - component: {fileID: 8867621982164754217}
   - component: {fileID: 9144337624357099528}
   - component: {fileID: 780003501431371306}
+  - component: {fileID: -1829092220675808851}
+  - component: {fileID: 6104490984641561648}
   - component: {fileID: 6482534006130789407}
   - component: {fileID: 7726668754953575154}
-  - component: {fileID: 6104490984641561648}
   - component: {fileID: 5106524137948605730}
+  - component: {fileID: 7412563203924951668}
+  - component: {fileID: 5754584309189751992}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -568,6 +557,30 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &-1829092220675808851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8867621982164754216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f3f5b78927d8a49869fa5c2899087e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6104490984641561648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8867621982164754216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96734dcb131988b478a67e83672cfed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6482534006130789407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -593,18 +606,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyBody: {fileID: 4140812842044212539}
---- !u!114 &6104490984641561648
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8867621982164754216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96734dcb131988b478a67e83672cfed5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5106524137948605730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -617,3 +618,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2d6579215697c54bbe9005a625c4226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7412563203924951668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8867621982164754216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb7f1f457792da43ba92294ada2fd25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _slider: {fileID: 4011752361578756007}
+--- !u!114 &5754584309189751992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8867621982164754216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b56a886a943164e46ace97e8da2f31be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemySpriteRenderer: {fileID: 4140812842044212538}
+  _enemyMovementComponent: {fileID: 6482534006130789407}
+  _enemyRotationComponent: {fileID: 7726668754953575154}
+  _enemyPointerComponent: {fileID: -1829092220675808851}
+  _enemyIDComponent: {fileID: 6104490984641561648}
+  _healthComponent: {fileID: 5106524137948605730}
