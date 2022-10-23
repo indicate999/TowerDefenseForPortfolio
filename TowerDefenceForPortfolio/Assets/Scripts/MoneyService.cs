@@ -26,10 +26,7 @@ public class MoneyService : MonoBehaviour
 
     public bool EnoughCoinsCheck(float price)
     {
-        if (price <= _coinCount)
-            return true;
-        else
-            return false;
+        return price <= _coinCount;
     }
 
     public void AddCoins(float earnPrice)

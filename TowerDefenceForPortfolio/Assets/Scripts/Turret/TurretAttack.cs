@@ -42,12 +42,15 @@ public class TurretAttack : MonoBehaviour
 
     private void SearchAttackTarget()
     {
-        if (!_isFire && _availableEnemies.Any())
+        if (!_isFire)
         {
-            _targetEnemy = _availableEnemies.OrderBy(s => s.GetComponent<EnemyID>().EnemyId).First();
+            if (_availableEnemies.Any())
+            {
+                _targetEnemy = _availableEnemies.OrderBy(s => s.GetComponent<EnemyContainer>().EnemyId).First();
 
-            StartedAttack?.Invoke();
-            _isFire = true;
+                StartedAttack?.Invoke();
+                _isFire = true;
+            }
         }
     }
 

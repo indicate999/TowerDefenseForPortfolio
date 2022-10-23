@@ -7,6 +7,7 @@ public class EnemyHandler : MonoBehaviour
     [SerializeField] private EnemySpawner _enemySpawner;
     [SerializeField] private MoneyService _moneyService;
     [SerializeField] private SoundEffector _soundEffector;
+
     public void SubscribeEnemyHealthEvents(HealthComponent enemyHealth)
     {
         enemyHealth.GotHurt += OnEnemyGotHurt;
@@ -24,7 +25,7 @@ public class EnemyHandler : MonoBehaviour
         enemy.GetComponent<HealthBar>().SetBarValue(healthAmount, maxHealthAmount);
     }
 
-    private void OnEnemyDied(GameObject enemy)
+    private void OnEnemyDied (GameObject enemy)
     {
         _soundEffector.PLayTrackExposionSound();
         _moneyService.AddCoins(enemy.GetComponent<EnemyContainer>().Reward);

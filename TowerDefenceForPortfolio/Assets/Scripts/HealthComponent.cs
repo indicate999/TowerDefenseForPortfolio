@@ -25,11 +25,11 @@ public class HealthComponent : MonoBehaviour
 
         if (_healthAmount > 0)
         {
-            GotHurt?.Invoke(this.gameObject, _healthAmount, _maxHealthAmount);
+            GotHurt?.Invoke(gameObject, _healthAmount, _maxHealthAmount);
         }
-        else if (_healthAmount <= 0)
+        else
         {
-            Died?.Invoke(this.gameObject);
+            Died?.Invoke(gameObject);
         }
     }
 }

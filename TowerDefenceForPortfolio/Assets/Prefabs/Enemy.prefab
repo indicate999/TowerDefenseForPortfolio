@@ -491,7 +491,6 @@ GameObject:
   - component: {fileID: 9144337624357099528}
   - component: {fileID: 780003501431371306}
   - component: {fileID: -1829092220675808851}
-  - component: {fileID: 6104490984641561648}
   - component: {fileID: 6482534006130789407}
   - component: {fileID: 7726668754953575154}
   - component: {fileID: 5106524137948605730}
@@ -569,18 +568,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67f3f5b78927d8a49869fa5c2899087e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6104490984641561648
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8867621982164754216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96734dcb131988b478a67e83672cfed5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6482534006130789407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -593,6 +580,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71391d242ecb14b489dbf5fbb0dbfc40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _enemySpawner: {fileID: 0}
 --- !u!114 &7726668754953575154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -647,5 +635,4 @@ MonoBehaviour:
   _enemyMovementComponent: {fileID: 6482534006130789407}
   _enemyRotationComponent: {fileID: 7726668754953575154}
   _enemyPointerComponent: {fileID: -1829092220675808851}
-  _enemyIDComponent: {fileID: 6104490984641561648}
   _healthComponent: {fileID: 5106524137948605730}

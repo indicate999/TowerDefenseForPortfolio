@@ -52,9 +52,9 @@ public class EnemySpawner : MonoBehaviour
             enemyContainer.EnemyRotationComponent.SetRotationParameters
                 (_enemyRoutePoints, currentEnemyExample.Speed, currentEnemyExample.RotationSpeed, currentEnemyExample.RotateStartDistance);
             enemyContainer.EnemyPointerComponent.EnemyExampleIndex = EnemyExampleIndex;
-            enemyContainer.EnemyIDComponent.EnemyId = _enemyId;
             enemyContainer.HealthComponent.MaxHealthAmount = currentEnemyExample.MaxHealthAmount;
 
+            enemyContainer.EnemyId = _enemyId;
             enemyContainer.Reward = currentEnemyExample.Reward;
 
             _enemyHandler.SubscribeEnemyHealthEvents(enemyContainer.HealthComponent);

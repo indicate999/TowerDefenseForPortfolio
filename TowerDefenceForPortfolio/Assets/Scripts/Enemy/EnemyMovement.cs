@@ -42,7 +42,7 @@ public class EnemyMovement : MonoBehaviour
 
             if (_nextRoutePoint < _enemyRoutePoints.Length)
                 SetNormalizedByZAxisNextRoutePointPosition();
-            else if (_nextRoutePoint >= _enemyRoutePoints.Length)
+            else
             {
                 ActionsAfterReachingLastRoutePoint();
             }

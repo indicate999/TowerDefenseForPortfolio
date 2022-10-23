@@ -46,7 +46,7 @@ public class EnemyRotation : MonoBehaviour
             startZRotation = _rotationZRight;
         else if (startDirection == Vector3.left)
             startZRotation = _rotationZLeft;
-        if (startDirection == Vector3.up)
+        else if (startDirection == Vector3.up)
             startZRotation = _rotationZUp;
         else if (startDirection == Vector3.down)
             startZRotation = _rotationZDown;
